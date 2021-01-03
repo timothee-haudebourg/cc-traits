@@ -1,3 +1,9 @@
+use cc_traits::{
+	Collection,
+	Back,
+	PushBack
+};
+
 /// Ordered stack.
 pub struct Ordered<S> {
 	inner: S
@@ -17,7 +23,7 @@ impl<S> Ordered<S> {
 	pub fn try_push<T>(&mut self, element: T) -> Result<(), T>
 	where
 		T: PartialOrd,
-		S: cc_traits::StackMut<T> // `S` must be a stack providing `push_back`.
+		S: Collection<Item=T> + Back + PushBack // `S` must be a stack providing `back` and `push_back`.
 	{
 		if self.inner.back().map(|back| back <= &element).unwrap_or(true) {
 			self.inner.push_back(element);
