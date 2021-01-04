@@ -3,8 +3,16 @@ name = "cc-traits"
 version = "0.1.0"
 authors = ["Timothée Haudebourg <timothee.haudebourg@irisa.fr>"]
 edition = "2018"
+categories = ["data-structure"]
+keywords = ["trait", "data-structure", "collection", "common"]
+description = "Common collection traits"
+repository = "https://github.com/timothee-haudebourg/cc-traits"
+documentation = "https://docs.rs/cc-traits"
+license = "MIT/Apache-2.0"
+readme = "README.md"
 
 [features]
+nostd = []
 nightly = []
 
 [dependencies]

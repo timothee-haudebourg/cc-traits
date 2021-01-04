@@ -73,10 +73,6 @@ Licensed under either of
 
 at your option.
 
-If the original `egl` crate was licensed only under the Apache 2.0 license,
-I believe I have made enough breaking changes so that no relevant code from the
-original code remains and the rest can be relicensed.
-
 ### Contribution
 
 Unless you explicitly state otherwise, any contribution intentionally submitted

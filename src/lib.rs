@@ -1,3 +1,4 @@
+#[cfg(not(feature="nostd"))]
 mod std_impls;
 
 #[cfg(feature="nightly")]
