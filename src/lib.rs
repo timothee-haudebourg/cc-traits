@@ -1,4 +1,4 @@
-mod std_impls;
+mod impls;
 
 #[cfg(feature="nightly")]
 mod alias;
