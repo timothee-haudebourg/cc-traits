@@ -100,6 +100,8 @@ mod impls;
 
 #[cfg(feature="nightly")]
 mod alias;
+#[cfg(feature="nightly")]
+pub use alias::*;
 
 /// Abstract collection.
 pub trait Collection {
