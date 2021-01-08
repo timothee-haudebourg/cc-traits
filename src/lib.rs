@@ -94,6 +94,7 @@
 //! 
 //!   - `slab` providing the `Slab` collection.
 //!   - `smallvec` providing the `SmallVec` collection.
+#![cfg_attr(feature = "nightly", feature(trait_alias))]
 
 mod impls;
 

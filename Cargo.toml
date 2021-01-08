@@ -1,6 +1,6 @@
 [package]
 name = "cc-traits"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Timothée Haudebourg <timothee.haudebourg@irisa.fr>"]
 edition = "2018"
 categories = ["data-structures", "no-std", "rust-patterns"]

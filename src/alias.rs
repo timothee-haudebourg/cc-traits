@@ -1,8 +1,8 @@
-#![feature(trait_alias)]
 use std::ops::{
 	Index,
 	IndexMut
 };
+use crate::*;
 
 /// Collection with mutable capacity.
 pub trait CapacityMut = Capacity + Reserve;
