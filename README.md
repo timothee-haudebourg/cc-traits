@@ -9,6 +9,18 @@
 This crate provide traits to describe common operations available on data structures.
 This is particularly useful when building new types on top of generic data structures without relying on the actual implementation of the underlying data structure.
 
+Here is an example of the kind of traits provided by this crate:
+```rust
+/// Mutable collection where new elements can be inserted.
+pub trait Insert: Collection {
+	/// The output of the insertion function.
+	type Output;
+
+	/// Insert a new element in the collection.
+	fn insert(&mut self, element: Self::Item) -> Self::Output;
+}
+```
+
 ## Usage
 
 ```rust
@@ -63,6 +75,33 @@ fn main() {
 	assert!(deque.try_push(0).is_err());
 }
 ```
+
+## Trait aliases
+
+By enabling the `nightly` you can get access to
+some trait alias definitions that can be useful to reduce the
+verbosity of your code.
+Here is an example of such aliases defining the common interface of stacks:
+```rust
+pub trait Stack<T> = Collection<Item=T> + Len + Back;
+pub trait StackMut<T> = Stack<T> + BackMut + PushBack + PopBack;
+```
+
+## Standard library
+
+By default, all the traits defined in this crate are implemented (when relevent)
+for the standard library collections.
+You can disable it by using the `nostd` feature.
+
+## Foreign implementations
+
+In addition to the standard library,
+traits are implemented for
+some popular crates if you enable the feature of the same name.
+Here are the supported crates:
+
+  - `slab` providing the `Slab` collection.
+  - `smallvec` providing the `SmallVec` collection.
 
 ## License
 
