@@ -1,9 +1,9 @@
 [package]
 name = "cc-traits"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Timothée Haudebourg <timothee.haudebourg@irisa.fr>"]
 edition = "2018"
-categories = ["data-structure"]
+categories = ["data-structures", "no-std", "rust-patterns"]
 keywords = ["trait", "data-structure", "collection", "common"]
 description = "Common collection traits"
 repository = "https://github.com/timothee-haudebourg/cc-traits"
