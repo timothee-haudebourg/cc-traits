@@ -85,4 +85,4 @@ pub trait MapMut<K, V> = Map<K, V> + Insert<Output=Option<V>> + for<'a> Remove<&
 pub trait Slab<T> = Len + Get<usize, Item=T>;
 
 /// Mutable slab data structure.
-pub trait SlabMut<T> = Slab<T> + Insert<Output=usize> + Remove<usize>;
+pub trait SlabMut<T> = Slab<T> + GetMut<usize, Item=T> + Insert<Output=usize> + Remove<usize>;
