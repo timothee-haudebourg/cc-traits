@@ -65,7 +65,7 @@ pub trait VecDequeMut<T> = VecDeque<T> + DequeMut<T> + VecMut<T>;
 /// Imutable set data structure.
 /// 
 /// A set is an unordered collection storing at most one single copy of each element.
-pub trait Set<T> = Len + for<'a> Get<&'a T>;
+pub trait Set<T> = Collection<Item=T> + Len + for<'a> Get<&'a T>;
 
 /// Mutable set data structure.
 pub trait SetMut<T> = Set<T> + Insert<Output=bool> + for<'a> Remove<&'a T>;
@@ -82,7 +82,7 @@ pub trait MapMut<K, V> = Map<K, V> + Insert<Output=Option<V>> + for<'a> Remove<&
 /// 
 /// A slab is a linear collection storing each element at a given index.
 /// The index of the element is allocated and returned upon insertion.
-pub trait Slab<T> = Len + Get<usize, Item=T>;
+pub trait Slab<T> = Collection<Item=T> + Len + Get<usize>;
 
 /// Mutable slab data structure.
-pub trait SlabMut<T> = Slab<T> + GetMut<usize, Item=T> + Insert<Output=usize> + Remove<usize>;
+pub trait SlabMut<T> = Slab<T> + GetMut<usize> + Insert<Output=usize> + Remove<usize>;

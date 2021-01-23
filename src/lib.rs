@@ -3,6 +3,7 @@
 //! 
 //! Here is an example of the kind of traits provided by this crate:
 //! ```rust
+//! # use cc_traits::Collection;
 //! /// Mutable collection where new elements can be inserted.
 //! pub trait Insert: Collection {
 //! 	/// The output of the insertion function.
@@ -74,7 +75,7 @@
 //! some trait alias definitions that can be useful to reduce the
 //! verbosity of your code.
 //! Here is an example of such aliases defining the common interface of stacks:
-//! ```rust
+//! ```ignore
 //! pub trait Stack<T> = Collection<Item=T> + Len + Back;
 //! pub trait StackMut<T> = Stack<T> + BackMut + PushBack + PopBack;
 //! ```
