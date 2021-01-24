@@ -191,6 +191,15 @@ pub trait Insert: Collection {
 	fn insert(&mut self, element: Self::Item) -> Self::Output;
 }
 
+/// Mutable map where new new key-value pairs can be inserted.
+pub trait MapInsert<K>: Collection {
+	/// The output of the insertion function.
+	type Output;
+
+	/// Insert a new key-value pair in the collection.
+	fn insert(&mut self, key: K, value: Self::Item) -> Self::Output;
+}
+
 /// Mutable collection where new elements can be pushed on the front.
 pub trait PushFront: Collection {
 	/// The output of the push function.

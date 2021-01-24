@@ -5,6 +5,7 @@ use std::{
 use crate::{
 	Collection,
 	Len,
+	Get,
 	Insert,
 	Remove,
 	Clear
@@ -23,6 +24,13 @@ impl<T> Len for BTreeSet<T> {
 	#[inline(always)]
 	fn is_empty(&self) -> bool {
 		self.is_empty()
+	}
+}
+
+impl<'a, Q, T: Ord> Get<&'a Q> for BTreeSet<T> where T: Borrow<Q>, Q: Ord + ?Sized {
+	#[inline(always)]
+	fn get(&self, t: &'a Q) -> Option<&T> {
+		self.get(t)
 	}
 }
 

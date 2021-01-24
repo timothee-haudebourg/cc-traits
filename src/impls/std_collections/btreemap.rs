@@ -5,13 +5,14 @@ use std::{
 use crate::{
 	Collection,
 	Len,
-	Insert,
+	Get,
+	MapInsert,
 	Remove,
 	Clear
 };
 
 impl<K, V> Collection for BTreeMap<K, V> {
-	type Item = (K, V);
+	type Item = V;
 }
 
 impl<K, V> Len for BTreeMap<K, V> {
@@ -26,19 +27,26 @@ impl<K, V> Len for BTreeMap<K, V> {
 	}
 }
 
-impl<'a, K: Ord, V> Insert for BTreeMap<K, V> {
+impl<'a, Q, K: Ord, V> Get<&'a Q> for BTreeMap<K, V> where K: Borrow<Q>, Q: Ord + ?Sized {
+	#[inline(always)]
+	fn get(&self, key: &'a Q) -> Option<&V> {
+		self.get(key)
+	}
+}
+
+impl<'a, K: Ord, V> MapInsert<K> for BTreeMap<K, V> {
 	type Output = Option<V>;
 
 	#[inline(always)]
-	fn insert(&mut self, (key, value): (K, V)) -> Option<V> {
+	fn insert(&mut self, key: K, value: V) -> Option<V> {
 		self.insert(key, value)
 	}
 }
 
 impl<'a, Q, K: Ord, V> Remove<&'a Q> for BTreeMap<K, V> where K: Borrow<Q>, Q: Ord + ?Sized {
 	#[inline(always)]
-	fn remove(&mut self, key: &'a Q) -> Option<(K, V)> {
-		self.remove_entry(key)
+	fn remove(&mut self, key: &'a Q) -> Option<V> {
+		self.remove(key)
 	}
 }
 

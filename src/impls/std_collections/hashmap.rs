@@ -6,13 +6,14 @@ use std::{
 use crate::{
 	Collection,
 	Len,
-	Insert,
+	Get,
+	MapInsert,
 	Remove,
 	Clear
 };
 
 impl<K, V> Collection for HashMap<K, V> {
-	type Item = (K, V);
+	type Item = V;
 }
 
 impl<K, V> Len for HashMap<K, V> {
@@ -27,19 +28,26 @@ impl<K, V> Len for HashMap<K, V> {
 	}
 }
 
-impl<'a, K: Hash + Eq, V> Insert for HashMap<K, V> {
+impl<'a, Q, K: Hash + Eq, V> Get<&'a Q> for HashMap<K, V> where K: Borrow<Q>, Q: Hash + Eq + ?Sized {
+	#[inline(always)]
+	fn get(&self, key: &'a Q) -> Option<&V> {
+		self.get(key)
+	}
+}
+
+impl<'a, K: Hash + Eq, V> MapInsert<K> for HashMap<K, V> {
 	type Output = Option<V>;
 
 	#[inline(always)]
-	fn insert(&mut self, (key, value): (K, V)) -> Option<V> {
+	fn insert(&mut self, key: K, value: V) -> Option<V> {
 		self.insert(key, value)
 	}
 }
 
 impl<'a, Q, K: Hash + Eq, V> Remove<&'a Q> for HashMap<K, V> where K: Borrow<Q>, Q: Hash + Eq + ?Sized {
 	#[inline(always)]
-	fn remove(&mut self, key: &'a Q) -> Option<(K, V)> {
-		self.remove_entry(key)
+	fn remove(&mut self, key: &'a Q) -> Option<V> {
+		self.remove(key)
 	}
 }
 

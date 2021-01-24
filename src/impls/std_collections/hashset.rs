@@ -6,6 +6,7 @@ use std::{
 use crate::{
 	Collection,
 	Len,
+	Get,
 	Insert,
 	Remove,
 	Clear
@@ -24,6 +25,12 @@ impl<T> Len for HashSet<T> {
 	#[inline(always)]
 	fn is_empty(&self) -> bool {
 		self.is_empty()
+	}
+}
+
+impl<'a, Q, T: Hash + Eq> Get<&'a Q> for HashSet<T> where T: Borrow<Q>, Q: Hash + Eq + ?Sized {
+	fn get(&self, value: &'a Q) -> Option<&T> {
+		self.get(value)
 	}
 }
 
