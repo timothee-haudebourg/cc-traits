@@ -6,6 +6,7 @@ use crate::{
 	Collection,
 	Len,
 	Get,
+	GetMut,
 	MapInsert,
 	Remove,
 	Clear
@@ -31,6 +32,13 @@ impl<'a, Q, K: Ord, V> Get<&'a Q> for BTreeMap<K, V> where K: Borrow<Q>, Q: Ord 
 	#[inline(always)]
 	fn get(&self, key: &'a Q) -> Option<&V> {
 		self.get(key)
+	}
+}
+
+impl<'a, Q, K: Ord, V> GetMut<&'a Q> for BTreeMap<K, V> where K: Borrow<Q>, Q: Ord + ?Sized {
+	#[inline(always)]
+	fn get_mut(&mut self, key: &'a Q) -> Option<&mut V> {
+		self.get_mut(key)
 	}
 }
 

@@ -7,6 +7,7 @@ use crate::{
 	Collection,
 	Len,
 	Get,
+	GetMut,
 	MapInsert,
 	Remove,
 	Clear
@@ -32,6 +33,13 @@ impl<'a, Q, K: Hash + Eq, V> Get<&'a Q> for HashMap<K, V> where K: Borrow<Q>, Q:
 	#[inline(always)]
 	fn get(&self, key: &'a Q) -> Option<&V> {
 		self.get(key)
+	}
+}
+
+impl<'a, Q, K: Hash + Eq, V> GetMut<&'a Q> for HashMap<K, V> where K: Borrow<Q>, Q: Hash + Eq + ?Sized {
+	#[inline(always)]
+	fn get_mut(&mut self, key: &'a Q) -> Option<&mut V> {
+		self.get_mut(key)
 	}
 }
 

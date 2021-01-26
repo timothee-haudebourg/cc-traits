@@ -76,7 +76,7 @@ pub trait SetMut<T> = Set<T> + Insert<Output=bool> + for<'a> Remove<&'a T>;
 pub trait Map<K, V> = Collection<Item=V> + Len + for<'a> Get<&'a K>;
 
 /// Mutable map data structure.
-pub trait MapMut<K, V> = Map<K, V> + MapInsert<K, Output=Option<V>> + for<'a> Remove<&'a K>;
+pub trait MapMut<K, V> = Map<K, V> + for<'a> GetMut<&'a K> + MapInsert<K, Output=Option<V>> + for<'a> Remove<&'a K>;
 
 /// Imutable slab data structure.
 /// 
