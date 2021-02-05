@@ -95,7 +95,7 @@
 //! 
 //!   - `slab` providing the `Slab` collection.
 //!   - `smallvec` providing the `SmallVec` collection.
-#![cfg_attr(feature = "nightly", feature(trait_alias))]
+#![cfg_attr(feature = "nightly", feature(trait_alias, generic_associated_types))]
 
 mod impls;
 
@@ -240,4 +240,11 @@ pub trait PopBack: Collection {
 pub trait Clear {
 	/// Remove all the elements of the collection.
 	fn clear(&mut self);
+}
+
+pub trait Iter<'a> {
+	type Item;
+	type IntoIter: Iterator<Item=Self::Item>;
+
+	fn iter(&'a self) -> Self::IntoIter;
 }
