@@ -23,6 +23,11 @@ pub trait Insert: Collection {
 
 ## Usage
 
+Such traits can be used to define collections with special properties,
+indepently of the actual internal data structure.
+For instance the following code defines an `Ordered<S>` stack collection,
+guarantying the well-sortedness of the elements in the stack.
+
 ```rust
 use cc_traits::{
 	Collection,
