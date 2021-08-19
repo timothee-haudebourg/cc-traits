@@ -5,6 +5,8 @@ use std::{
 };
 use crate::{
 	Collection,
+	CollectionRef,
+	CollectionMut,
 	Len,
 	Get,
 	Insert,
@@ -14,6 +16,14 @@ use crate::{
 
 impl<T> Collection for HashSet<T> {
 	type Item = T;
+}
+
+impl<T> CollectionRef for HashSet<T> {
+	type ItemRef<'a> where Self: 'a = &'a T;
+}
+
+impl<T> CollectionMut for HashSet<T> {
+	type ItemMut<'a> where Self: 'a = &'a mut T;
 }
 
 impl<T> Len for HashSet<T> {
@@ -34,8 +44,8 @@ impl<'a, Q, T: Hash + Eq> Get<&'a Q> for HashSet<T> where T: Borrow<Q>, Q: Hash 
 	}
 }
 
-impl<'a, T: Hash + Eq> Insert for HashSet<T> {
-	type Output = bool;
+impl<T: Hash + Eq> Insert for HashSet<T> {
+	type Output<'a> where Self: 'a = bool;
 
 	#[inline(always)]
 	fn insert(&mut self, t: T) -> bool {
