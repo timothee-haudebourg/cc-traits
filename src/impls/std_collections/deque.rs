@@ -1,6 +1,8 @@
 use std::collections::VecDeque;
 use crate::{
 	Collection,
+	CollectionRef,
+	CollectionMut,
 	WithCapacity,
 	Len,
 	Capacity,
@@ -12,6 +14,14 @@ use crate::{
 
 impl<T> Collection for VecDeque<T> {
 	type Item = T;
+}
+
+impl<T> CollectionRef for VecDeque<T> {
+	type ItemRef<'a> where Self: 'a = &'a T;
+}
+
+impl<T> CollectionMut for VecDeque<T> {
+	type ItemMut<'a> where Self: 'a = &'a mut T;
 }
 
 impl<T> WithCapacity for VecDeque<T> {
@@ -46,7 +56,7 @@ impl<T> Reserve for VecDeque<T> {
 }
 
 impl<T> PushBack for VecDeque<T> {
-	type Output = ();
+	type Output<'a> where Self: 'a = ();
 
 	fn push_back(&mut self, t: T) {
 		self.push_back(t)

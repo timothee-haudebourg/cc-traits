@@ -23,7 +23,8 @@ impl<S> Ordered<S> {
 	pub fn try_push<T>(&mut self, element: T) -> Result<(), T>
 	where
 		T: PartialOrd,
-		S: Collection<Item=T> + Back + PushBack // `S` must be a stack providing `back` and `push_back`.
+		S: Collection<Item=T> + Back + PushBack, // `S` must be a stack providing `back` and `push_back`.
+		for<'a> S::ItemRef<'a>: PartialOrd<&'a T> // The reference type must be comparable with other reference types.
 	{
 		if self.inner.back().map(|back| back <= &element).unwrap_or(true) {
 			self.inner.push_back(element);

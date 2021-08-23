@@ -6,6 +6,8 @@ use std::{
 use crate::{
 	Collection,
 	Keyed,
+	CollectionRef,
+	CollectionMut,
 	Len,
 	Get,
 	GetMut,
@@ -16,6 +18,14 @@ use crate::{
 
 impl<K, V> Collection for HashMap<K, V> {
 	type Item = V;
+}
+
+impl<K, V> CollectionRef for HashMap<K, V> {
+	type ItemRef<'a> where Self: 'a = &'a V;
+}
+
+impl<K, V> CollectionMut for HashMap<K, V> {
+	type ItemMut<'a> where Self: 'a = &'a mut V;
 }
 
 impl<K, V> Keyed for HashMap<K, V> {
@@ -48,8 +58,8 @@ impl<'a, Q, K: Hash + Eq, V> GetMut<&'a Q> for HashMap<K, V> where K: Borrow<Q>,
 	}
 }
 
-impl<'a, K: Hash + Eq, V> MapInsert<K> for HashMap<K, V> {
-	type Output = Option<V>;
+impl<K: Hash + Eq, V> MapInsert<K> for HashMap<K, V> {
+	type Output<'a> where Self: 'a = Option<V>;
 
 	#[inline(always)]
 	fn insert(&mut self, key: K, value: V) -> Option<V> {

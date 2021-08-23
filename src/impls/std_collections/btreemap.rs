@@ -5,6 +5,8 @@ use std::{
 use crate::{
 	Collection,
 	Keyed,
+	CollectionRef,
+	CollectionMut,
 	Len,
 	Get,
 	GetMut,
@@ -15,6 +17,14 @@ use crate::{
 
 impl<K, V> Collection for BTreeMap<K, V> {
 	type Item = V;
+}
+
+impl<K, V> CollectionRef for BTreeMap<K, V> {
+	type ItemRef<'a> where Self: 'a = &'a V;
+}
+
+impl<K, V> CollectionMut for BTreeMap<K, V> {
+	type ItemMut<'a> where Self: 'a = &'a mut V;
 }
 
 impl<K, V> Keyed for BTreeMap<K, V> {
@@ -47,8 +57,8 @@ impl<'a, Q, K: Ord, V> GetMut<&'a Q> for BTreeMap<K, V> where K: Borrow<Q>, Q: O
 	}
 }
 
-impl<'a, K: Ord, V> MapInsert<K> for BTreeMap<K, V> {
-	type Output = Option<V>;
+impl<K: Ord, V> MapInsert<K> for BTreeMap<K, V> {
+	type Output<'a> where Self: 'a = Option<V>;
 
 	#[inline(always)]
 	fn insert(&mut self, key: K, value: V) -> Option<V> {
