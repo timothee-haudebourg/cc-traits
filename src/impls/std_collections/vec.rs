@@ -4,12 +4,16 @@ use crate::{
 	CollectionMut,
 	WithCapacity,
 	Len,
+	Get,
+	GetMut,
 	Capacity,
 	Reserve,
 	PushBack,
 	PopBack,
 	Remove,
-	Clear
+	Clear,
+	Iter,
+	IterMut
 };
 
 impl<T> Collection for Vec<T> {
@@ -43,33 +47,52 @@ impl<T> Len for Vec<T> {
 	}
 }
 
+impl<T> Get<usize> for Vec<T> {
+	#[inline(always)]
+	fn get(&self, index: usize) -> Option<&T> {
+		self.as_slice().get(index)
+	}
+}
+
+impl<T> GetMut<usize> for Vec<T> {
+	#[inline(always)]
+	fn get_mut(&mut self, index: usize) -> Option<&mut T> {
+		self.as_mut_slice().get_mut(index)
+	}
+}
+
 impl<T> Capacity for Vec<T> {
+	#[inline(always)]
 	fn capacity(&self) -> usize {
 		self.capacity()
 	}
 }
 
 impl<T> Reserve for Vec<T> {
+	#[inline(always)]
 	fn reserve(&mut self, additional: usize) {
 		self.reserve(additional)
 	}
 }
 
 impl<T> PushBack for Vec<T> {
-	type Output<'a> where Self: 'a = ();
+	type Output = ();
 
+	#[inline(always)]
 	fn push_back(&mut self, t: T) {
 		self.push(t)
 	}
 }
 
 impl<T> PopBack for Vec<T> {
+	#[inline(always)]
 	fn pop_back(&mut self) -> Option<T> {
 		self.pop()
 	}
 }
 
 impl<T> Remove<usize> for Vec<T> {
+	#[inline(always)]
 	fn remove(&mut self, index: usize) -> Option<T> {
 		if index < self.len() {
 			Some(self.remove(index))
@@ -80,7 +103,26 @@ impl<T> Remove<usize> for Vec<T> {
 }
 
 impl<T> Clear for Vec<T> {
+	#[inline(always)]
 	fn clear(&mut self) {
 		self.clear()
+	}
+}
+
+impl<T> Iter for Vec<T> {
+	type Iter<'a> where T: 'a = std::slice::Iter<'a, T>;
+
+	#[inline(always)]
+	fn iter(&self) -> Self::Iter<'_> {
+		self.as_slice().iter()
+	}
+}
+
+impl<T> IterMut for Vec<T> {
+	type IterMut<'a> where T: 'a = std::slice::IterMut<'a, T>;
+
+	#[inline(always)]
+	fn iter_mut(&mut self) -> Self::IterMut<'_> {
+		self.as_mut_slice().iter_mut()
 	}
 }

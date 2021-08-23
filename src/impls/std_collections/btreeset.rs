@@ -10,7 +10,8 @@ use crate::{
 	Get,
 	Insert,
 	Remove,
-	Clear
+	Clear,
+	Iter
 };
 
 impl<T> Collection for BTreeSet<T> {
@@ -45,7 +46,7 @@ impl<'a, Q, T: Ord> Get<&'a Q> for BTreeSet<T> where T: Borrow<Q>, Q: Ord + ?Siz
 }
 
 impl<T: Ord> Insert for BTreeSet<T> {
-	type Output<'a> where Self: 'a = bool;
+	type Output = bool;
 
 	#[inline(always)]
 	fn insert(&mut self, t: T) -> bool {
@@ -64,5 +65,14 @@ impl<T: Ord> Clear for BTreeSet<T> {
 	#[inline(always)]
 	fn clear(&mut self) {
 		self.clear()
+	}
+}
+
+impl<T> Iter for BTreeSet<T> {
+	type Iter<'a> where Self: 'a = std::collections::btree_set::Iter<'a, T>;
+
+	#[inline(always)]
+	fn iter(&self) -> Self::Iter<'_> {
+		self.iter()
 	}
 }

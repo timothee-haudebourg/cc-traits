@@ -11,7 +11,8 @@ use crate::{
 	Get,
 	Insert,
 	Remove,
-	Clear
+	Clear,
+	Iter
 };
 
 impl<T> Collection for HashSet<T> {
@@ -45,7 +46,7 @@ impl<'a, Q, T: Hash + Eq> Get<&'a Q> for HashSet<T> where T: Borrow<Q>, Q: Hash 
 }
 
 impl<T: Hash + Eq> Insert for HashSet<T> {
-	type Output<'a> where Self: 'a = bool;
+	type Output = bool;
 
 	#[inline(always)]
 	fn insert(&mut self, t: T) -> bool {
@@ -64,5 +65,14 @@ impl<T: Hash + Eq> Clear for HashSet<T> {
 	#[inline(always)]
 	fn clear(&mut self) {
 		self.clear()
+	}
+}
+
+impl<T> Iter for HashSet<T> {
+	type Iter<'a> where T: 'a = std::collections::hash_set::Iter<'a, T>;
+
+	#[inline(always)]
+	fn iter(&self) -> Self::Iter<'_> {
+		self.iter()
 	}
 }

@@ -102,7 +102,7 @@
 //!   - `slab` providing the `Slab` collection.
 //!   - `smallvec` providing the `SmallVec` collection.
 #![feature(generic_associated_types)]
-#![cfg_attr(feature = "nightly", feature(trait_alias, generic_associated_types))]
+#![cfg_attr(feature = "nightly", feature(trait_alias))]
 
 mod impls;
 
@@ -137,6 +137,13 @@ pub trait CollectionMut: Collection {
 pub trait Keyed: Collection {
 	/// Type of the keys indexing each item of the collection.
 	type Key;
+}
+
+/// Abstract keyed collection whose key can be referenced.
+pub trait KeyedRef: Keyed {
+	/// Type of references to keys of the collection.
+	type KeyRef<'a>: Deref<Target=Self::Key>
+		where Self: 'a;
 }
 
 /// Collection that can be created with a minimum given capacity.
@@ -250,37 +257,37 @@ impl<T: GetMut<usize> + Len> BackMut for T {
 /// Mutable collection where new elements can be inserted.
 pub trait Insert: Collection {
 	/// The output of the insertion function.
-	type Output<'a> where Self: 'a;
+	type Output;
 
 	/// Insert a new element in the collection.
-	fn insert(&mut self, element: Self::Item) -> Self::Output<'_>;
+	fn insert(&mut self, element: Self::Item) -> Self::Output;
 }
 
 /// Mutable map where new new key-value pairs can be inserted.
 pub trait MapInsert<K>: Collection {
 	/// The output of the insertion function.
-	type Output<'a> where Self: 'a;
+	type Output;
 
 	/// Insert a new key-value pair in the collection.
-	fn insert(&mut self, key: K, value: Self::Item) -> Self::Output<'_>;
+	fn insert(&mut self, key: K, value: Self::Item) -> Self::Output;
 }
 
 /// Mutable collection where new elements can be pushed on the front.
 pub trait PushFront: Collection {
 	/// The output of the push function.
-	type Output<'a> where Self: 'a;
+	type Output;
 
 	/// Push a new element on the front of the collection.
-	fn push_front(&mut self, element: Self::Item) -> Self::Output<'_>;
+	fn push_front(&mut self, element: Self::Item) -> Self::Output;
 }
 
 /// Mutable collection where new elements can be pushed on the back.
 pub trait PushBack: Collection {
 	/// The output of the push function.
-	type Output<'a> where Self: 'a;
+	type Output;
 
 	/// Push a new element on the back of the collection.
-	fn push_back(&mut self, element: Self::Item) -> Self::Output<'_>;
+	fn push_back(&mut self, element: Self::Item) -> Self::Output;
 }
 
 /// Mutable collection where elements can be removed from.
@@ -305,4 +312,34 @@ pub trait PopBack: Collection {
 pub trait Clear {
 	/// Remove all the elements of the collection.
 	fn clear(&mut self);
+}
+
+/// Iterable collection.
+pub trait Iter: CollectionRef {
+	/// Iterator type.
+	type Iter<'a>: Iterator<Item=Self::ItemRef<'a>> where Self: 'a;
+
+	/// Create an iterator over the items of the collection.
+	fn iter(&self) -> Self::Iter<'_>;
+}
+
+/// Mutably iterable collection.
+pub trait IterMut: CollectionMut {
+	/// Iterator type.
+	type IterMut<'a>: Iterator<Item=Self::ItemMut<'a>> where Self: 'a;
+
+	/// Create an iterator over the mutable items of the collection.
+	fn iter_mut(&mut self) -> Self::IterMut<'_>;
+}
+
+pub trait MapIter: KeyedRef + CollectionRef {
+	type Iter<'a>: Iterator<Item=(Self::KeyRef<'a>, Self::ItemRef<'a>)> where Self: 'a;
+
+	fn iter(&self) -> Self::Iter<'_>;
+}
+
+pub trait MapIterMut: KeyedRef + CollectionMut {
+	type IterMut<'a>: Iterator<Item=(Self::KeyRef<'a>, Self::ItemMut<'a>)> where Self: 'a;
+
+	fn iter_mut(&mut self) -> Self::IterMut<'_>;
 }

@@ -4,15 +4,19 @@ use std::{
 };
 use crate::{
 	Collection,
-	Keyed,
 	CollectionRef,
 	CollectionMut,
+	Keyed,
+	KeyedRef,
 	Len,
 	Get,
 	GetMut,
 	MapInsert,
 	Remove,
-	Clear
+	Clear,
+	Iter,
+	MapIter,
+	MapIterMut
 };
 
 impl<K, V> Collection for BTreeMap<K, V> {
@@ -29,6 +33,10 @@ impl<K, V> CollectionMut for BTreeMap<K, V> {
 
 impl<K, V> Keyed for BTreeMap<K, V> {
 	type Key = K;
+}
+
+impl<K, V> KeyedRef for BTreeMap<K, V> {
+	type KeyRef<'a> where Self: 'a = &'a K;
 }
 
 impl<K, V> Len for BTreeMap<K, V> {
@@ -58,7 +66,7 @@ impl<'a, Q, K: Ord, V> GetMut<&'a Q> for BTreeMap<K, V> where K: Borrow<Q>, Q: O
 }
 
 impl<K: Ord, V> MapInsert<K> for BTreeMap<K, V> {
-	type Output<'a> where Self: 'a = Option<V>;
+	type Output = Option<V>;
 
 	#[inline(always)]
 	fn insert(&mut self, key: K, value: V) -> Option<V> {
@@ -77,5 +85,32 @@ impl<K: Ord, V> Clear for BTreeMap<K, V> {
 	#[inline(always)]
 	fn clear(&mut self) {
 		self.clear()
+	}
+}
+
+impl<K, V> Iter for BTreeMap<K, V> {
+	type Iter<'a> where Self: 'a = std::collections::btree_map::Values<'a, K, V>;
+
+	#[inline(always)]
+	fn iter(&self) -> Self::Iter<'_> {
+		self.values()
+	}
+}
+
+impl<K, V> MapIter for BTreeMap<K, V> {
+	type Iter<'a> where Self: 'a = std::collections::btree_map::Iter<'a, K, V>;
+
+	#[inline(always)]
+	fn iter(&self) -> Self::Iter<'_> {
+		self.iter()
+	}
+}
+
+impl<K, V> MapIterMut for BTreeMap<K, V> {
+	type IterMut<'a> where Self: 'a = std::collections::btree_map::IterMut<'a, K, V>;
+
+	#[inline(always)]
+	fn iter_mut(&mut self) -> Self::IterMut<'_> {
+		self.iter_mut()
 	}
 }

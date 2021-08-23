@@ -5,15 +5,19 @@ use std::{
 };
 use crate::{
 	Collection,
-	Keyed,
 	CollectionRef,
 	CollectionMut,
+	Keyed,
+	KeyedRef,
 	Len,
 	Get,
 	GetMut,
 	MapInsert,
 	Remove,
-	Clear
+	Clear,
+	Iter,
+	MapIter,
+	MapIterMut
 };
 
 impl<K, V> Collection for HashMap<K, V> {
@@ -30,6 +34,10 @@ impl<K, V> CollectionMut for HashMap<K, V> {
 
 impl<K, V> Keyed for HashMap<K, V> {
 	type Key = K;
+}
+
+impl<K, V> KeyedRef for HashMap<K, V> {
+	type KeyRef<'a> where Self: 'a = &'a K;
 }
 
 impl<K, V> Len for HashMap<K, V> {
@@ -59,7 +67,7 @@ impl<'a, Q, K: Hash + Eq, V> GetMut<&'a Q> for HashMap<K, V> where K: Borrow<Q>,
 }
 
 impl<K: Hash + Eq, V> MapInsert<K> for HashMap<K, V> {
-	type Output<'a> where Self: 'a = Option<V>;
+	type Output = Option<V>;
 
 	#[inline(always)]
 	fn insert(&mut self, key: K, value: V) -> Option<V> {
@@ -78,5 +86,32 @@ impl<K, V> Clear for HashMap<K, V> {
 	#[inline(always)]
 	fn clear(&mut self) {
 		self.clear()
+	}
+}
+
+impl<K, V> Iter for HashMap<K, V> {
+	type Iter<'a> where Self: 'a = std::collections::hash_map::Values<'a, K, V>;
+
+	#[inline(always)]
+	fn iter(&self) -> Self::Iter<'_> {
+		self.values()
+	}
+}
+
+impl<K, V> MapIter for HashMap<K, V> {
+	type Iter<'a> where Self: 'a = std::collections::hash_map::Iter<'a, K, V>;
+
+	#[inline(always)]
+	fn iter(&self) -> Self::Iter<'_> {
+		self.iter()
+	}
+}
+
+impl<K, V> MapIterMut for HashMap<K, V> {
+	type IterMut<'a> where Self: 'a = std::collections::hash_map::IterMut<'a, K, V>;
+
+	#[inline(always)]
+	fn iter_mut(&mut self) -> Self::IterMut<'_> {
+		self.iter_mut()
 	}
 }
