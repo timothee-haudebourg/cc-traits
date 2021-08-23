@@ -5,10 +5,6 @@ use crate::{
 	Len,
 	Capacity,
 	Reserve,
-	Back,
-	BackMut,
-	Front,
-	FrontMut,
 	PushBack,
 	PopBack,
 	Clear
@@ -46,30 +42,6 @@ impl<T> Capacity for VecDeque<T> {
 impl<T> Reserve for VecDeque<T> {
 	fn reserve(&mut self, additional: usize) {
 		self.reserve(additional)
-	}
-}
-
-impl<T> Back for VecDeque<T> {
-	fn back(&self) -> Option<&T> {
-		self.back()
-	}
-}
-
-impl<T> BackMut for VecDeque<T> {
-	fn back_mut(&mut self) -> Option<&mut T> {
-		self.back_mut()
-	}
-}
-
-impl<T> Front for VecDeque<T> {
-	fn front(&self) -> Option<&T> {
-		self.front()
-	}
-}
-
-impl<T> FrontMut for VecDeque<T> {
-	fn front_mut(&mut self) -> Option<&mut T> {
-		self.front_mut()
 	}
 }
 

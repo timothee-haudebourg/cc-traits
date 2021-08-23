@@ -101,6 +101,7 @@
 //!   - `slab` providing the `Slab` collection.
 //!   - `smallvec` providing the `SmallVec` collection.
 #![cfg_attr(feature = "nightly", feature(trait_alias, generic_associated_types))]
+use std::ops::IndexMut;
 
 mod impls;
 
@@ -113,6 +114,12 @@ pub use alias::*;
 pub trait Collection {
 	/// Type of the items of the collection.
 	type Item;
+}
+
+/// Abstract keyed collection.
+pub trait Keyed: Collection {
+	/// Type of the keys indexing each item of the collection.
+	type Key;
 }
 
 /// Collection that can be created with a minimum given capacity.
@@ -169,10 +176,28 @@ pub trait Front: Collection {
 	fn front(&self) -> Option<&Self::Item>;
 }
 
+impl<T: Collection + IndexMut<usize, Output=Self::Item> + Len> Front for T {
+	fn front(&self) -> Option<&Self::Item> {
+		match self.len() {
+			0 => None,
+			_ => Some(self.index(0))
+		}
+	}
+}
+
 /// Collection exposing a reference to its back element.
 pub trait Back: Collection {
 	/// Get a reference to the back element of the collection.
 	fn back(&self) -> Option<&Self::Item>;
+}
+
+impl<T: Collection + IndexMut<usize, Output=Self::Item> + Len> Back for T {
+	fn back(&self) -> Option<&Self::Item> {
+		match self.len() {
+			0 => None,
+			l => Some(self.index(l - 1))
+		}
+	}
 }
 
 /// Collection exposing a mutable reference to its front element.
@@ -181,10 +206,28 @@ pub trait FrontMut: Collection {
 	fn front_mut(&mut self) -> Option<&mut Self::Item>;
 }
 
+impl<T: Collection + IndexMut<usize, Output=Self::Item> + Len> FrontMut for T {
+	fn front_mut(&mut self) -> Option<&mut Self::Item> {
+		match self.len() {
+			0 => None,
+			_ => Some(self.index_mut(0))
+		}
+	}
+}
+
 /// Collection exposing a mutable reference to its back element.
 pub trait BackMut: Collection {
 	/// Get a mutable reference to the back element of the collection.
 	fn back_mut(&mut self) -> Option<&mut Self::Item>;
+}
+
+impl<T: Collection + IndexMut<usize, Output=Self::Item> + Len> BackMut for T {
+	fn back_mut(&mut self) -> Option<&mut Self::Item> {
+		match self.len() {
+			0 => None,
+			l => Some(self.index_mut(l - 1))
+		}
+	}
 }
 
 /// Mutable collection where new elements can be inserted.

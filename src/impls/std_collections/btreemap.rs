@@ -4,6 +4,7 @@ use std::{
 };
 use crate::{
 	Collection,
+	Keyed,
 	Len,
 	Get,
 	GetMut,
@@ -14,6 +15,10 @@ use crate::{
 
 impl<K, V> Collection for BTreeMap<K, V> {
 	type Item = V;
+}
+
+impl<K, V> Keyed for BTreeMap<K, V> {
+	type Key = K;
 }
 
 impl<K, V> Len for BTreeMap<K, V> {

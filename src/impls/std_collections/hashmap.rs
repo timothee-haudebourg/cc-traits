@@ -5,6 +5,7 @@ use std::{
 };
 use crate::{
 	Collection,
+	Keyed,
 	Len,
 	Get,
 	GetMut,
@@ -15,6 +16,10 @@ use crate::{
 
 impl<K, V> Collection for HashMap<K, V> {
 	type Item = V;
+}
+
+impl<K, V> Keyed for HashMap<K, V> {
+	type Key = K;
 }
 
 impl<K, V> Len for HashMap<K, V> {
