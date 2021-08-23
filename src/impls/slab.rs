@@ -1,6 +1,8 @@
 use slab::Slab;
 use crate::{
 	Collection,
+	CollectionRef,
+	CollectionMut,
 	WithCapacity,
 	Len,
 	Capacity,
@@ -14,6 +16,14 @@ use crate::{
 
 impl<T> Collection for Slab<T> {
 	type Item = T;
+}
+
+impl<T> CollectionRef for Slab<T> {
+	type ItemRef<'a> where Self: 'a = &'a T;
+}
+
+impl<T> CollectionMut for Slab<T> {
+	type ItemMut<'a> where Self: 'a = &'a mut T;
 }
 
 impl<T> WithCapacity for Slab<T> {
@@ -53,7 +63,7 @@ impl<T> GetMut<usize> for Slab<T> {
 }
 
 impl<T> Insert for Slab<T> {
-	type Output = usize;
+	type Output<'a> where Self: 'a = usize;
 
 	fn insert(&mut self, element: T) -> usize {
 		self.insert(element)

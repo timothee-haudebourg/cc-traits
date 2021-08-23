@@ -1,5 +1,7 @@
 use crate::{
 	Collection,
+	CollectionRef,
+	CollectionMut,
 	WithCapacity,
 	Len,
 	Capacity,
@@ -16,6 +18,14 @@ use crate::{
 
 impl<T> Collection for Vec<T> {
 	type Item = T;
+}
+
+impl<T> CollectionRef for Vec<T> {
+	type ItemRef<'a> where Self: 'a = &'a T;
+}
+
+impl<T> CollectionMut for Vec<T> {
+	type ItemMut<'a> where Self: 'a = &'a mut T;
 }
 
 impl<T> WithCapacity for Vec<T> {
@@ -74,7 +84,7 @@ impl<T> FrontMut for Vec<T> {
 }
 
 impl<T> PushBack for Vec<T> {
-	type Output = ();
+	type Output<'a> where Self: 'a = ();
 
 	fn push_back(&mut self, t: T) {
 		self.push(t)

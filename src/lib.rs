@@ -47,7 +47,8 @@
 //! 	pub fn try_push<T>(&mut self, element: T) -> Result<(), T>
 //! 	where
 //! 		T: PartialOrd,
-//! 		S: Collection<Item=T> + Back + PushBack // `S` must be a stack providing `back` and `push_back`.
+//! 		S: Collection<Item=T> + Back + PushBack, // `S` must be a stack providing `back` and `push_back`.
+//! 		for<'a> S::ItemRef<'a>: PartialOrd<&'a T> // The reference type must be comparable with other reference types.
 //! 	{
 //! 		if self.inner.back().map(|back| back <= &element).unwrap_or(true) {
 //! 			self.inner.push_back(element);
@@ -100,6 +101,7 @@
 //! 
 //!   - `slab` providing the `Slab` collection.
 //!   - `smallvec` providing the `SmallVec` collection.
+#![feature(generic_associated_types)]
 #![cfg_attr(feature = "nightly", feature(trait_alias, generic_associated_types))]
 
 mod impls;
@@ -109,10 +111,26 @@ mod alias;
 #[cfg(feature="nightly")]
 pub use alias::*;
 
+use std::ops::{Deref, DerefMut};
+
 /// Abstract collection.
 pub trait Collection {
 	/// Type of the items of the collection.
 	type Item;
+}
+
+/// Abstract collection that can be immutably referenced.
+pub trait CollectionRef: Collection {
+	/// Type of references to items of the collection.
+	type ItemRef<'a>: Deref<Target = Self::Item>
+		where Self: 'a;
+}
+
+/// Abstract collection that can be mutably referenced.
+pub trait CollectionMut: Collection {
+	/// Type of mutable references to items of the collection.
+	type ItemMut<'a>: DerefMut<Target = Self::Item>
+		where Self: 'a;
 }
 
 /// Collection that can be created with a minimum given capacity.
@@ -147,9 +165,9 @@ pub trait Reserve {
 }
 
 /// Queryable collection.
-pub trait Get<T>: Collection {
+pub trait Get<T>: CollectionRef {
 	/// Returns a reference to the item stored behind the given key (if any).
-	fn get(&self, key: T) -> Option<&Self::Item>;
+	fn get(&self, key: T) -> Option<Self::ItemRef<'_>>;
 
 	/// Checks if the collection contains an item behind the given key.
 	fn contains(&self, key: T) -> bool {
@@ -158,69 +176,69 @@ pub trait Get<T>: Collection {
 }
 
 /// Mutably queryable collection.
-pub trait GetMut<T>: Get<T> {
+pub trait GetMut<T>: Get<T> + CollectionMut {
 	/// Returns a mutable reference to the item stored behind the given key (if any).
-	fn get_mut(&mut self, key: T) -> Option<&mut Self::Item>;
+	fn get_mut(&mut self, key: T) -> Option<Self::ItemMut<'_>>;
 }
 
 /// Collection exposing a reference to its front element.
-pub trait Front: Collection {
+pub trait Front: CollectionRef {
 	/// Get a reference to the front element of the collection.
-	fn front(&self) -> Option<&Self::Item>;
+	fn front(&self) -> Option<Self::ItemRef<'_>>;
 }
 
 /// Collection exposing a reference to its back element.
-pub trait Back: Collection {
+pub trait Back: CollectionRef {
 	/// Get a reference to the back element of the collection.
-	fn back(&self) -> Option<&Self::Item>;
+	fn back(&self) -> Option<Self::ItemRef<'_>>;
 }
 
 /// Collection exposing a mutable reference to its front element.
-pub trait FrontMut: Collection {
+pub trait FrontMut: CollectionMut {
 	/// Get a mutable reference to the front element of the collection.
-	fn front_mut(&mut self) -> Option<&mut Self::Item>;
+	fn front_mut(&mut self) -> Option<Self::ItemMut<'_>>;
 }
 
 /// Collection exposing a mutable reference to its back element.
-pub trait BackMut: Collection {
+pub trait BackMut: CollectionMut {
 	/// Get a mutable reference to the back element of the collection.
-	fn back_mut(&mut self) -> Option<&mut Self::Item>;
+	fn back_mut(&mut self) -> Option<Self::ItemMut<'_>>;
 }
 
 /// Mutable collection where new elements can be inserted.
 pub trait Insert: Collection {
 	/// The output of the insertion function.
-	type Output;
+	type Output<'a> where Self: 'a;
 
 	/// Insert a new element in the collection.
-	fn insert(&mut self, element: Self::Item) -> Self::Output;
+	fn insert(&mut self, element: Self::Item) -> Self::Output<'_>;
 }
 
 /// Mutable map where new new key-value pairs can be inserted.
 pub trait MapInsert<K>: Collection {
 	/// The output of the insertion function.
-	type Output;
+	type Output<'a> where Self: 'a;
 
 	/// Insert a new key-value pair in the collection.
-	fn insert(&mut self, key: K, value: Self::Item) -> Self::Output;
+	fn insert(&mut self, key: K, value: Self::Item) -> Self::Output<'_>;
 }
 
 /// Mutable collection where new elements can be pushed on the front.
 pub trait PushFront: Collection {
 	/// The output of the push function.
-	type Output;
+	type Output<'a> where Self: 'a;
 
 	/// Push a new element on the front of the collection.
-	fn push_front(&mut self, element: Self::Item) -> Self::Output;
+	fn push_front(&mut self, element: Self::Item) -> Self::Output<'_>;
 }
 
 /// Mutable collection where new elements can be pushed on the back.
 pub trait PushBack: Collection {
 	/// The output of the push function.
-	type Output;
+	type Output<'a> where Self: 'a;
 
 	/// Push a new element on the back of the collection.
-	fn push_back(&mut self, element: Self::Item) -> Self::Output;
+	fn push_back(&mut self, element: Self::Item) -> Self::Output<'_>;
 }
 
 /// Mutable collection where elements can be removed from.

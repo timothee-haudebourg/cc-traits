@@ -4,6 +4,8 @@ use smallvec::{
 };
 use crate::{
 	Collection,
+	CollectionRef,
+	CollectionMut,
 	WithCapacity,
 	Len,
 	Capacity,
@@ -20,6 +22,14 @@ use crate::{
 
 impl<A: Array> Collection for SmallVec<A> {
 	type Item = A::Item;
+}
+
+impl<A: Array> CollectionRef for SmallVec<A> {
+	type ItemRef<'a> where Self: 'a = &'a A::Item;
+}
+
+impl<A: Array> CollectionMut for SmallVec<A> {
+	type ItemMut<'a> where Self: 'a = &'a mut A::Item;
 }
 
 impl<A: Array> WithCapacity for SmallVec<A> {
@@ -78,7 +88,7 @@ impl<A: Array> FrontMut for SmallVec<A> {
 }
 
 impl<A: Array> PushBack for SmallVec<A> {
-	type Output = ();
+	type Output<'a> where Self: 'a = ();
 
 	fn push_back(&mut self, t: A::Item) {
 		self.push(t)
