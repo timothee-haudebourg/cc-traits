@@ -107,6 +107,8 @@ Here are the supported crates:
 
   - `slab` providing the `Slab` collection.
   - `smallvec` providing the `SmallVec` collection.
+  - `json` providing the `json::object::Object` collection.
+  - `serde_json` providing the `serde_json::Map` collection.
 
 ## License
 
