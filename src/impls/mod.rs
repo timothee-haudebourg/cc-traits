@@ -1,3 +1,6 @@
+#[cfg(feature="dashmap")]
+mod dashmap;
+
 #[cfg(not(feature="nostd"))]
 mod std_collections;
 
