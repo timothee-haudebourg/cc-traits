@@ -133,6 +133,13 @@ pub trait CollectionMut: Collection {
 		where Self: 'a;
 }
 
+/// Abstract collection that can be mutably referenced behind a immutable reference.
+pub trait CollectionLock: Collection {
+	/// Type of guarded references to items of the collection.
+	type ItemGuard<'a>: DerefMut<Target = Self::Item>
+		where Self: 'a;
+}
+
 /// Collection that can be created with a minimum given capacity.
 pub trait WithCapacity {
 	/// Creates a new instance of `Self` with the given minimum capacity.
@@ -164,6 +171,14 @@ pub trait Reserve {
 	fn reserve(&mut self, additional: usize);
 }
 
+/// Lockable collection that can extend their capacity.
+pub trait ReserveLock {
+	/// Reserve enough memory for `additional` more elements.
+	///
+	/// It is expected that this method may block.
+	fn reserve_lock(&self, additional: usize);
+}
+
 /// Queryable collection.
 pub trait Get<T>: CollectionRef {
 	/// Returns a reference to the item stored behind the given key (if any).
@@ -179,6 +194,14 @@ pub trait Get<T>: CollectionRef {
 pub trait GetMut<T>: Get<T> + CollectionMut {
 	/// Returns a mutable reference to the item stored behind the given key (if any).
 	fn get_mut(&mut self, key: T) -> Option<Self::ItemMut<'_>>;
+}
+
+/// Guarded queryable collection.
+pub trait GetLock<T>: Get<T> + CollectionLock {
+	/// Returns a guarded reference to the item stored behind the given key (if any).
+	///
+	/// It is expected that this method may block.
+	fn get_lock(&self, key: T) -> Option<Self::ItemGuard<'_>>;
 }
 
 /// Collection exposing a reference to its front element.
@@ -205,6 +228,22 @@ pub trait BackMut: CollectionMut {
 	fn back_mut(&mut self) -> Option<Self::ItemMut<'_>>;
 }
 
+/// Collection exposing a guarded reference to its front element.
+pub trait FrontLock: CollectionLock {
+	/// Get a guarded referencce to the front element of the collection.
+	///
+	/// It is expected that this method may block.
+	fn front_lock(&self) -> Option<Self::ItemGuard<'_>>;
+}
+
+/// Collection exposing a guarded reference to its back element.
+pub trait BackLock: CollectionLock {
+	/// Get a guarded reference to the back element of the collection.
+	///
+	/// It is expected that this method may block.
+	fn back_lock(&self) -> Option<Self::ItemGuard<'_>>;
+}
+
 /// Mutable collection where new elements can be inserted.
 pub trait Insert: Collection {
 	/// The output of the insertion function.
@@ -214,6 +253,17 @@ pub trait Insert: Collection {
 	fn insert(&mut self, element: Self::Item) -> Self::Output<'_>;
 }
 
+/// Locked collection where new elements can be inserted.
+pub trait InsertLock: Collection {
+	/// The output of the insertion function.
+	type Output<'a> where Self: 'a;
+
+	/// Insert a new element in the collection behind an immutable reference.
+	///
+	/// It is expected that this method may block.
+	fn insert_lock(&self, element: Self::Item) -> Self::Output<'_>;
+}
+
 /// Mutable map where new new key-value pairs can be inserted.
 pub trait MapInsert<K>: Collection {
 	/// The output of the insertion function.
@@ -221,6 +271,17 @@ pub trait MapInsert<K>: Collection {
 
 	/// Insert a new key-value pair in the collection.
 	fn insert(&mut self, key: K, value: Self::Item) -> Self::Output<'_>;
+}
+
+/// Lockable map where new new key-value pairs can be inserted.
+pub trait MapInsertLock<K>: Collection {
+	/// The output of the insertion function.
+	type Output<'a> where Self: 'a;
+
+	/// Insert a new key-value pair in the collection behind an immutable reference.
+	///
+	/// It is expected that this method may block.
+	fn insert_lock(&self, key: K, value: Self::Item) -> Self::Output<'_>;
 }
 
 /// Mutable collection where new elements can be pushed on the front.
@@ -241,10 +302,40 @@ pub trait PushBack: Collection {
 	fn push_back(&mut self, element: Self::Item) -> Self::Output<'_>;
 }
 
+/// Lockable collection where new elements can be pushed on the front.
+pub trait PushFrontLock: Collection {
+	/// The output of the push function.
+	type Output<'a> where Self: 'a;
+
+	/// Push a new element on the front of the collection behind an immutable reference.
+	///
+	/// It is expected that this method may block.
+	fn push_front_lock(&self, element: Self::Item) -> Self::Output<'_>;
+}
+
+/// Lockable collection where new elements can be pushed on the back.
+pub trait PushBackLock: Collection {
+	/// The output of the push function.
+	type Output<'a> where Self: 'a;
+
+	/// Push a new element on the back of the collection behind an immutable reference.
+	///
+	/// It is expected that this method may block.
+	fn push_back_lock(&self, element: Self::Item) -> Self::Output<'_>;
+}
+
 /// Mutable collection where elements can be removed from.
 pub trait Remove<T>: Collection {
 	/// Remove the element identified by the given `key`.
 	fn remove(&mut self, key: T) -> Option<Self::Item>;
+}
+
+/// Lockable collection where elements can be removed from.
+pub trait RemoveLock<T>: Collection {
+	/// Remove the element identified by the given `key` behind an immutable reference.
+	///
+	/// It is expected that this method may block.
+	fn remove_lock(&self, key: T) -> Option<Self::Item>;
 }
 
 /// Mutable collection where elements can be popped from the front.
@@ -259,8 +350,32 @@ pub trait PopBack: Collection {
 	fn pop_back(&mut self) -> Option<Self::Item>;
 }
 
+/// Lockable collection where elements can be popped from the front.
+pub trait PopFrontLock: Collection {
+	/// Remove the front element of the collection and return it (if any) behind an immutable reference.
+	///
+	/// It is expected that this method may block.
+	fn pop_front_lock(&self) -> Option<Self::Item>;
+}
+
+/// Lockable collection where elements can be popped from the back.
+pub trait PopBackLock: Collection {
+	/// Remove the back element of the collection and return it (if any) behind an immutable reference.
+	///
+	/// It is expected that this method may block.
+	fn pop_back_lock(&self) -> Option<Self::Item>;
+}
+
 /// Clearable collection.
 pub trait Clear {
 	/// Remove all the elements of the collection.
 	fn clear(&mut self);
+}
+
+/// Lockable clearable collection.
+pub trait ClearLock {
+	/// Remove all the elements of the collection behind an immutable reference.
+	///
+	/// It is expected that this method may block.
+	fn clear_lock(&self);
 }
