@@ -1,30 +1,22 @@
-use std::{
-	collections::HashSet,
-	borrow::Borrow,
-	hash::Hash
-};
-use crate::{
-	Collection,
-	CollectionRef,
-	CollectionMut,
-	Len,
-	Get,
-	Insert,
-	Remove,
-	Clear,
-	Iter
-};
+use crate::{Clear, Collection, CollectionMut, CollectionRef, Get, Insert, Iter, Len, Remove};
+use std::{borrow::Borrow, collections::HashSet, hash::Hash};
 
 impl<T> Collection for HashSet<T> {
 	type Item = T;
 }
 
 impl<T> CollectionRef for HashSet<T> {
-	type ItemRef<'a> where Self: 'a = &'a T;
+	type ItemRef<'a>
+	where
+		Self: 'a,
+	= &'a T;
 }
 
 impl<T> CollectionMut for HashSet<T> {
-	type ItemMut<'a> where Self: 'a = &'a mut T;
+	type ItemMut<'a>
+	where
+		Self: 'a,
+	= &'a mut T;
 }
 
 impl<T> Len for HashSet<T> {
@@ -39,7 +31,11 @@ impl<T> Len for HashSet<T> {
 	}
 }
 
-impl<'a, Q, T: Hash + Eq> Get<&'a Q> for HashSet<T> where T: Borrow<Q>, Q: Hash + Eq + ?Sized {
+impl<'a, Q, T: Hash + Eq> Get<&'a Q> for HashSet<T>
+where
+	T: Borrow<Q>,
+	Q: Hash + Eq + ?Sized,
+{
 	fn get(&self, value: &'a Q) -> Option<&T> {
 		self.get(value)
 	}
@@ -54,7 +50,11 @@ impl<T: Hash + Eq> Insert for HashSet<T> {
 	}
 }
 
-impl<'a, Q, T: Hash + Eq> Remove<&'a Q> for HashSet<T> where T: Borrow<Q>, Q: Hash + Eq + ?Sized {
+impl<'a, Q, T: Hash + Eq> Remove<&'a Q> for HashSet<T>
+where
+	T: Borrow<Q>,
+	Q: Hash + Eq + ?Sized,
+{
 	#[inline(always)]
 	fn remove(&mut self, t: &'a Q) -> Option<T> {
 		self.take(t)
@@ -69,7 +69,10 @@ impl<T: Hash + Eq> Clear for HashSet<T> {
 }
 
 impl<T> Iter for HashSet<T> {
-	type Iter<'a> where T: 'a = std::collections::hash_set::Iter<'a, T>;
+	type Iter<'a>
+	where
+		T: 'a,
+	= std::collections::hash_set::Iter<'a, T>;
 
 	#[inline(always)]
 	fn iter(&self) -> Self::Iter<'_> {

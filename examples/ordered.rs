@@ -1,18 +1,17 @@
-use cc_traits::{
-	Collection,
-	Back,
-	PushBack
-};
+use cc_traits::{Back, Collection, PushBack};
 
 /// Ordered stack.
 pub struct Ordered<S> {
-	inner: S
+	inner: S,
 }
 
 impl<S> Ordered<S> {
-	pub fn new() -> Self where S: Default {
+	pub fn new() -> Self
+	where
+		S: Default,
+	{
 		Ordered {
-			inner: S::default()
+			inner: S::default(),
 		}
 	}
 }
@@ -23,10 +22,15 @@ impl<S> Ordered<S> {
 	pub fn try_push<T>(&mut self, element: T) -> Result<(), T>
 	where
 		T: PartialOrd,
-		S: Collection<Item=T> + Back + PushBack, // `S` must be a stack providing `back` and `push_back`.
-		for<'a> S::ItemRef<'a>: PartialOrd<&'a T> // The reference type must be comparable with other reference types.
+		S: Collection<Item = T> + Back + PushBack, // `S` must be a stack providing `back` and `push_back`.
+		for<'a> S::ItemRef<'a>: PartialOrd<&'a T>, // The reference type must be comparable with other reference types.
 	{
-		if self.inner.back().map(|back| back <= &element).unwrap_or(true) {
+		if self
+			.inner
+			.back()
+			.map(|back| back <= &element)
+			.unwrap_or(true)
+		{
 			self.inner.push_back(element);
 			Ok(())
 		} else {

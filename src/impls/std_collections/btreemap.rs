@@ -1,34 +1,25 @@
-use std::{
-	collections::BTreeMap,
-	borrow::Borrow
-};
 use crate::{
-	Collection,
-	CollectionRef,
-	CollectionMut,
-	Keyed,
-	KeyedRef,
-	Len,
-	Get,
-	GetMut,
-	MapInsert,
-	Remove,
-	Clear,
-	Iter,
-	MapIter,
-	MapIterMut
+	Clear, Collection, CollectionMut, CollectionRef, Get, GetMut, Iter, Keyed, KeyedRef, Len,
+	MapInsert, MapIter, MapIterMut, Remove,
 };
+use std::{borrow::Borrow, collections::BTreeMap};
 
 impl<K, V> Collection for BTreeMap<K, V> {
 	type Item = V;
 }
 
 impl<K, V> CollectionRef for BTreeMap<K, V> {
-	type ItemRef<'a> where Self: 'a = &'a V;
+	type ItemRef<'a>
+	where
+		Self: 'a,
+	= &'a V;
 }
 
 impl<K, V> CollectionMut for BTreeMap<K, V> {
-	type ItemMut<'a> where Self: 'a = &'a mut V;
+	type ItemMut<'a>
+	where
+		Self: 'a,
+	= &'a mut V;
 }
 
 impl<K, V> Keyed for BTreeMap<K, V> {
@@ -36,7 +27,10 @@ impl<K, V> Keyed for BTreeMap<K, V> {
 }
 
 impl<K, V> KeyedRef for BTreeMap<K, V> {
-	type KeyRef<'a> where Self: 'a = &'a K;
+	type KeyRef<'a>
+	where
+		Self: 'a,
+	= &'a K;
 }
 
 impl<K, V> Len for BTreeMap<K, V> {
@@ -51,14 +45,22 @@ impl<K, V> Len for BTreeMap<K, V> {
 	}
 }
 
-impl<'a, Q, K: Ord, V> Get<&'a Q> for BTreeMap<K, V> where K: Borrow<Q>, Q: Ord + ?Sized {
+impl<'a, Q, K: Ord, V> Get<&'a Q> for BTreeMap<K, V>
+where
+	K: Borrow<Q>,
+	Q: Ord + ?Sized,
+{
 	#[inline(always)]
 	fn get(&self, key: &'a Q) -> Option<&V> {
 		self.get(key)
 	}
 }
 
-impl<'a, Q, K: Ord, V> GetMut<&'a Q> for BTreeMap<K, V> where K: Borrow<Q>, Q: Ord + ?Sized {
+impl<'a, Q, K: Ord, V> GetMut<&'a Q> for BTreeMap<K, V>
+where
+	K: Borrow<Q>,
+	Q: Ord + ?Sized,
+{
 	#[inline(always)]
 	fn get_mut(&mut self, key: &'a Q) -> Option<&mut V> {
 		self.get_mut(key)
@@ -74,7 +76,11 @@ impl<K: Ord, V> MapInsert<K> for BTreeMap<K, V> {
 	}
 }
 
-impl<'a, Q, K: Ord, V> Remove<&'a Q> for BTreeMap<K, V> where K: Borrow<Q>, Q: Ord + ?Sized {
+impl<'a, Q, K: Ord, V> Remove<&'a Q> for BTreeMap<K, V>
+where
+	K: Borrow<Q>,
+	Q: Ord + ?Sized,
+{
 	#[inline(always)]
 	fn remove(&mut self, key: &'a Q) -> Option<V> {
 		self.remove(key)
@@ -89,7 +95,10 @@ impl<K: Ord, V> Clear for BTreeMap<K, V> {
 }
 
 impl<K, V> Iter for BTreeMap<K, V> {
-	type Iter<'a> where Self: 'a = std::collections::btree_map::Values<'a, K, V>;
+	type Iter<'a>
+	where
+		Self: 'a,
+	= std::collections::btree_map::Values<'a, K, V>;
 
 	#[inline(always)]
 	fn iter(&self) -> Self::Iter<'_> {
@@ -98,7 +107,10 @@ impl<K, V> Iter for BTreeMap<K, V> {
 }
 
 impl<K, V> MapIter for BTreeMap<K, V> {
-	type Iter<'a> where Self: 'a = std::collections::btree_map::Iter<'a, K, V>;
+	type Iter<'a>
+	where
+		Self: 'a,
+	= std::collections::btree_map::Iter<'a, K, V>;
 
 	#[inline(always)]
 	fn iter(&self) -> Self::Iter<'_> {
@@ -107,7 +119,10 @@ impl<K, V> MapIter for BTreeMap<K, V> {
 }
 
 impl<K, V> MapIterMut for BTreeMap<K, V> {
-	type IterMut<'a> where Self: 'a = std::collections::btree_map::IterMut<'a, K, V>;
+	type IterMut<'a>
+	where
+		Self: 'a,
+	= std::collections::btree_map::IterMut<'a, K, V>;
 
 	#[inline(always)]
 	fn iter_mut(&mut self) -> Self::IterMut<'_> {

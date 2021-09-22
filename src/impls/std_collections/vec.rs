@@ -1,19 +1,6 @@
 use crate::{
-	Collection,
-	CollectionRef,
-	CollectionMut,
-	WithCapacity,
-	Len,
-	Get,
-	GetMut,
-	Capacity,
-	Reserve,
-	PushBack,
-	PopBack,
-	Remove,
-	Clear,
-	Iter,
-	IterMut
+	Capacity, Clear, Collection, CollectionMut, CollectionRef, Get, GetMut, Iter, IterMut, Len,
+	PopBack, PushBack, Remove, Reserve, WithCapacity,
 };
 
 impl<T> Collection for Vec<T> {
@@ -21,11 +8,17 @@ impl<T> Collection for Vec<T> {
 }
 
 impl<T> CollectionRef for Vec<T> {
-	type ItemRef<'a> where Self: 'a = &'a T;
+	type ItemRef<'a>
+	where
+		Self: 'a,
+	= &'a T;
 }
 
 impl<T> CollectionMut for Vec<T> {
-	type ItemMut<'a> where Self: 'a = &'a mut T;
+	type ItemMut<'a>
+	where
+		Self: 'a,
+	= &'a mut T;
 }
 
 impl<T> WithCapacity for Vec<T> {
@@ -110,7 +103,10 @@ impl<T> Clear for Vec<T> {
 }
 
 impl<T> Iter for Vec<T> {
-	type Iter<'a> where T: 'a = std::slice::Iter<'a, T>;
+	type Iter<'a>
+	where
+		T: 'a,
+	= std::slice::Iter<'a, T>;
 
 	#[inline(always)]
 	fn iter(&self) -> Self::Iter<'_> {
@@ -119,7 +115,10 @@ impl<T> Iter for Vec<T> {
 }
 
 impl<T> IterMut for Vec<T> {
-	type IterMut<'a> where T: 'a = std::slice::IterMut<'a, T>;
+	type IterMut<'a>
+	where
+		T: 'a,
+	= std::slice::IterMut<'a, T>;
 
 	#[inline(always)]
 	fn iter_mut(&mut self) -> Self::IterMut<'_> {

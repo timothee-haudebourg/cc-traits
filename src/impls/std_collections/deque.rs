@@ -1,31 +1,25 @@
-use std::collections::VecDeque;
 use crate::{
-	Collection,
-	CollectionRef,
-	CollectionMut,
-	WithCapacity,
-	Len,
-	Capacity,
-	Reserve,
-	Front,
-	FrontMut,
-	Back,
-	BackMut,
-	PushBack,
-	PopBack,
-	Clear
+	Back, BackMut, Capacity, Clear, Collection, CollectionMut, CollectionRef, Front, FrontMut, Len,
+	PopBack, PushBack, Reserve, WithCapacity,
 };
+use std::collections::VecDeque;
 
 impl<T> Collection for VecDeque<T> {
 	type Item = T;
 }
 
 impl<T> CollectionRef for VecDeque<T> {
-	type ItemRef<'a> where Self: 'a = &'a T;
+	type ItemRef<'a>
+	where
+		Self: 'a,
+	= &'a T;
 }
 
 impl<T> CollectionMut for VecDeque<T> {
-	type ItemMut<'a> where Self: 'a = &'a mut T;
+	type ItemMut<'a>
+	where
+		Self: 'a,
+	= &'a mut T;
 }
 
 impl<T> WithCapacity for VecDeque<T> {

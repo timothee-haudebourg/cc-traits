@@ -1,8 +1,8 @@
-#[cfg(not(feature="nostd"))]
+#[cfg(not(feature = "nostd"))]
 mod std_collections;
 
-#[cfg(feature="slab")]
+#[cfg(feature = "slab")]
 mod slab;
 
-#[cfg(feature="smallvec")]
+#[cfg(feature = "smallvec")]
 mod smallvec;

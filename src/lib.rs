@@ -1,6 +1,6 @@
 //! This crate provide traits to describe common operations available on data structures.
 //! This is particularly useful when building new types on top of generic data structures without relying on the actual implementation of the underlying data structure.
-//! 
+//!
 //! Here is an example of the kind of traits provided by this crate:
 //! ```rust
 //! # use cc_traits::Collection;
@@ -8,31 +8,31 @@
 //! pub trait Insert: Collection {
 //! 	/// The output of the insertion function.
 //! 	type Output;
-//! 
+//!
 //! 	/// Insert a new element in the collection.
 //! 	fn insert(&mut self, element: Self::Item) -> Self::Output;
 //! }
 //! ```
-//! 
+//!
 //! # Usage
-//! 
+//!
 //! Such traits can be used to define collections with special properties,
 //! indepently of the actual internal data structure.
 //! For instance the following code defines an `Ordered<S>` stack collection,
 //! guarantying the well-sortedness of the elements in the stack.
-//! 
+//!
 //! ```rust
 //! use cc_traits::{
 //! 	Collection,
 //! 	Back,
 //! 	PushBack
 //! };
-//! 
+//!
 //! /// Ordered stack.
 //! pub struct Ordered<S> {
 //! 	inner: S
 //! }
-//! 
+//!
 //! impl<S> Ordered<S> {
 //! 	pub fn new() -> Self where S: Default {
 //! 		Ordered {
@@ -40,7 +40,7 @@
 //! 		}
 //! 	}
 //! }
-//! 
+//!
 //! impl<S> Ordered<S> {
 //! 	/// Push the given element on the stack iff it is grater or equal
 //! 	/// to every other element already in the stack.
@@ -58,25 +58,25 @@
 //! 		}
 //! 	}
 //! }
-//! 
+//!
 //! fn main() {
 //! 	let mut vec: Ordered<Vec<i32>> = Ordered::new(); // a `Vec` is a stack so it works.
-//! 
+//!
 //! 	assert!(vec.try_push(1).is_ok());
 //! 	assert!(vec.try_push(2).is_ok());
 //! 	assert!(vec.try_push(0).is_err());
-//! 
+//!
 //! 	use std::collections::VecDeque;
 //! 	let mut deque: Ordered<VecDeque<i32>> = Ordered::new(); // a `VecDeque` is also a stack.
-//! 
+//!
 //! 	assert!(deque.try_push(1).is_ok());
 //! 	assert!(deque.try_push(2).is_ok());
 //! 	assert!(deque.try_push(0).is_err());
 //! }
 //! ```
-//! 
+//!
 //! # Trait aliases
-//! 
+//!
 //! By enabling the `nightly` you can get access to
 //! some trait alias definitions that can be useful to reduce the
 //! verbosity of your code.
@@ -85,20 +85,20 @@
 //! pub trait Stack<T> = Collection<Item=T> + Len + Back;
 //! pub trait StackMut<T> = Stack<T> + BackMut + PushBack + PopBack;
 //! ```
-//! 
+//!
 //! # Standard library
-//! 
+//!
 //! By default, all the traits defined in this crate are implemented (when relevent)
 //! for the standard library collections.
 //! You can disable it by using the `nostd` feature.
-//! 
+//!
 //! # Foreign implementations
-//! 
+//!
 //! In addition to the standard library,
 //! traits are implemented for
 //! some popular crates if you enable the feature of the same name.
 //! Here are the supported crates:
-//! 
+//!
 //!   - `slab` providing the `Slab` collection.
 //!   - `smallvec` providing the `SmallVec` collection.
 #![feature(generic_associated_types)]
@@ -106,9 +106,9 @@
 
 mod impls;
 
-#[cfg(feature="nightly")]
+#[cfg(feature = "nightly")]
 mod alias;
-#[cfg(feature="nightly")]
+#[cfg(feature = "nightly")]
 pub use alias::*;
 
 use std::ops::{Deref, DerefMut};
@@ -123,14 +123,16 @@ pub trait Collection {
 pub trait CollectionRef: Collection {
 	/// Type of references to items of the collection.
 	type ItemRef<'a>: Deref<Target = Self::Item>
-		where Self: 'a;
+	where
+		Self: 'a;
 }
 
 /// Abstract collection that can be mutably referenced.
 pub trait CollectionMut: Collection {
 	/// Type of mutable references to items of the collection.
 	type ItemMut<'a>: DerefMut<Target = Self::Item>
-		where Self: 'a;
+	where
+		Self: 'a;
 }
 
 /// Abstract keyed collection.
@@ -142,8 +144,9 @@ pub trait Keyed: Collection {
 /// Abstract keyed collection whose key can be referenced.
 pub trait KeyedRef: Keyed {
 	/// Type of references to keys of the collection.
-	type KeyRef<'a>: Deref<Target=Self::Key>
-		where Self: 'a;
+	type KeyRef<'a>: Deref<Target = Self::Key>
+	where
+		Self: 'a;
 }
 
 /// Collection that can be created with a minimum given capacity.
@@ -166,7 +169,7 @@ pub trait Len {
 /// Collection with known capacity.
 pub trait Capacity {
 	/// Returns the current capacity of the collection.
-	/// 
+	///
 	/// This corresponds to the number of elements the collection can hold without reallocation.
 	fn capacity(&self) -> usize;
 }
@@ -204,7 +207,7 @@ impl<T: Get<usize> + Len> Front for T {
 	fn front(&self) -> Option<Self::ItemRef<'_>> {
 		match self.len() {
 			0 => None,
-			_ => self.get(0)
+			_ => self.get(0),
 		}
 	}
 }
@@ -219,7 +222,7 @@ impl<T: Get<usize> + Len> Back for T {
 	fn back(&self) -> Option<Self::ItemRef<'_>> {
 		match self.len() {
 			0 => None,
-			l => self.get(l - 1)
+			l => self.get(l - 1),
 		}
 	}
 }
@@ -234,7 +237,7 @@ impl<T: GetMut<usize> + Len> FrontMut for T {
 	fn front_mut(&mut self) -> Option<Self::ItemMut<'_>> {
 		match self.len() {
 			0 => None,
-			_ => self.get_mut(0)
+			_ => self.get_mut(0),
 		}
 	}
 }
@@ -249,7 +252,7 @@ impl<T: GetMut<usize> + Len> BackMut for T {
 	fn back_mut(&mut self) -> Option<Self::ItemMut<'_>> {
 		match self.len() {
 			0 => None,
-			l => self.get_mut(l - 1)
+			l => self.get_mut(l - 1),
 		}
 	}
 }
@@ -317,7 +320,9 @@ pub trait Clear {
 /// Iterable collection.
 pub trait Iter: CollectionRef {
 	/// Iterator type.
-	type Iter<'a>: Iterator<Item=Self::ItemRef<'a>> where Self: 'a;
+	type Iter<'a>: Iterator<Item = Self::ItemRef<'a>>
+	where
+		Self: 'a;
 
 	/// Create an iterator over the items of the collection.
 	fn iter(&self) -> Self::Iter<'_>;
@@ -326,20 +331,26 @@ pub trait Iter: CollectionRef {
 /// Mutably iterable collection.
 pub trait IterMut: CollectionMut {
 	/// Iterator type.
-	type IterMut<'a>: Iterator<Item=Self::ItemMut<'a>> where Self: 'a;
+	type IterMut<'a>: Iterator<Item = Self::ItemMut<'a>>
+	where
+		Self: 'a;
 
 	/// Create an iterator over the mutable items of the collection.
 	fn iter_mut(&mut self) -> Self::IterMut<'_>;
 }
 
 pub trait MapIter: KeyedRef + CollectionRef {
-	type Iter<'a>: Iterator<Item=(Self::KeyRef<'a>, Self::ItemRef<'a>)> where Self: 'a;
+	type Iter<'a>: Iterator<Item = (Self::KeyRef<'a>, Self::ItemRef<'a>)>
+	where
+		Self: 'a;
 
 	fn iter(&self) -> Self::Iter<'_>;
 }
 
 pub trait MapIterMut: KeyedRef + CollectionMut {
-	type IterMut<'a>: Iterator<Item=(Self::KeyRef<'a>, Self::ItemMut<'a>)> where Self: 'a;
+	type IterMut<'a>: Iterator<Item = (Self::KeyRef<'a>, Self::ItemMut<'a>)>
+	where
+		Self: 'a;
 
 	fn iter_mut(&mut self) -> Self::IterMut<'_>;
 }

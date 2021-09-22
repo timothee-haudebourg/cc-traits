@@ -1,6 +1,6 @@
-mod vec;
-mod deque;
 mod btreemap;
 mod btreeset;
+mod deque;
 mod hashmap;
 mod hashset;
+mod vec;
