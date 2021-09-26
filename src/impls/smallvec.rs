@@ -1,6 +1,6 @@
 use crate::{
-	Back, BackMut, Capacity, Clear, Collection, CollectionMut, CollectionRef, Front, FrontMut,
-	Iter, IterMut, Len, PopBack, PushBack, Remove, Reserve, WithCapacity,
+	Capacity, Clear, Collection, CollectionMut, CollectionRef, Get, GetMut, Iter, IterMut, Len,
+	PopBack, PushBack, Remove, Reserve, WithCapacity,
 };
 use smallvec::{Array, SmallVec};
 
@@ -55,31 +55,17 @@ impl<A: Array> Reserve for SmallVec<A> {
 	}
 }
 
-impl<A: Array> Back for SmallVec<A> {
+impl<A: Array> Get<usize> for SmallVec<A> {
 	#[inline(always)]
-	fn back(&self) -> Option<&A::Item> {
-		self.last()
+	fn get(&self, index: usize) -> Option<&A::Item> {
+		self.as_slice().get(index)
 	}
 }
 
-impl<A: Array> BackMut for SmallVec<A> {
+impl<A: Array> GetMut<usize> for SmallVec<A> {
 	#[inline(always)]
-	fn back_mut(&mut self) -> Option<&mut A::Item> {
-		self.last_mut()
-	}
-}
-
-impl<A: Array> Front for SmallVec<A> {
-	#[inline(always)]
-	fn front(&self) -> Option<&A::Item> {
-		self.first()
-	}
-}
-
-impl<A: Array> FrontMut for SmallVec<A> {
-	#[inline(always)]
-	fn front_mut(&mut self) -> Option<&mut A::Item> {
-		self.first_mut()
+	fn get_mut(&mut self, index: usize) -> Option<&mut A::Item> {
+		self.as_mut_slice().get_mut(index)
 	}
 }
 
