@@ -13,11 +13,11 @@ Here is an example of the kind of traits provided by this crate:
 ```rust
 /// Mutable collection where new elements can be inserted.
 pub trait Insert: Collection {
-	/// The output of the insertion function.
-	type Output;
+    /// The output of the insertion function.
+    type Output;
 
-	/// Insert a new element in the collection.
-	fn insert(&mut self, element: Self::Item) -> Self::Output;
+    /// Insert a new element in the collection.
+    fn insert(&mut self, element: Self::Item) -> Self::Output;
 }
 ```
 
@@ -30,55 +30,54 @@ guarantying the well-sortedness of the elements in the stack.
 
 ```rust
 use cc_traits::{
-	Collection,
-	Back,
-	PushBack
+    Collection,
+    Back,
+    PushBack
 };
 
 /// Ordered stack.
 pub struct Ordered<S> {
-	inner: S
+    inner: S
 }
 
 impl<S> Ordered<S> {
-	pub fn new() -> Self where S: Default {
-		Ordered {
-			inner: S::default()
-		}
-	}
+    pub fn new() -> Self where S: Default {
+        Ordered {
+            inner: S::default()
+        }
+    }
 }
 
 impl<S> Ordered<S> {
-	/// Push the given element on the stack iff it is grater or equal
-	/// to every other element already in the stack.
-	pub fn try_push<T>(&mut self, element: T) -> Result<(), T>
-	where
-		T: PartialOrd,
-		S: Collection<Item=T> + Back + PushBack // `S` must be a stack providing `back` and `push_back`.
-	{
-		if self.inner.back().map(|back| back <= &element).unwrap_or(true) {
-			self.inner.push_back(element);
-			Ok(())
-		} else {
-			Err(element)
-		}
-	}
+    /// Push the given element on the stack iff it is grater or equal
+    /// to every other element already in the stack.
+    pub fn try_push<T>(&mut self, element: T) -> Result<(), T>
+    where
+        T: PartialOrd,
+        S: Collection<Item=T> + Back + PushBack, // `S` must be a stack providing `back` and `push_back`.
+        for<'a> S::ItemRef<'a>: PartialOrd<&'a T> // The reference type must be comparable with other reference types.
+    {
+        if self.inner.back().map(|back| back <= &element).unwrap_or(true) {
+            self.inner.push_back(element);
+            Ok(())
+        } else {
+            Err(element)
+        }
+    }
 }
 
-fn main() {
-	let mut vec: Ordered<Vec<i32>> = Ordered::new(); // a `Vec` is a stack so it works.
+let mut vec: Ordered<Vec<i32>> = Ordered::new(); // a `Vec` is a stack so it works.
 
-	assert!(vec.try_push(1).is_ok());
-	assert!(vec.try_push(2).is_ok());
-	assert!(vec.try_push(0).is_err());
+assert!(vec.try_push(1).is_ok());
+assert!(vec.try_push(2).is_ok());
+assert!(vec.try_push(0).is_err());
 
-	use std::collections::VecDeque;
-	let mut deque: Ordered<VecDeque<i32>> = Ordered::new(); // a `VecDeque` is also a stack.
+use std::collections::VecDeque;
+let mut deque: Ordered<VecDeque<i32>> = Ordered::new(); // a `VecDeque` is also a stack.
 
-	assert!(deque.try_push(1).is_ok());
-	assert!(deque.try_push(2).is_ok());
-	assert!(deque.try_push(0).is_err());
-}
+assert!(deque.try_push(1).is_ok());
+assert!(deque.try_push(2).is_ok());
+assert!(deque.try_push(0).is_err());
 ```
 
 ## Trait aliases
@@ -107,8 +106,6 @@ Here are the supported crates:
 
   - `slab` providing the `Slab` collection.
   - `smallvec` providing the `SmallVec` collection.
-  - `json` providing the `json::object::Object` collection.
-  - `serde_json` providing the `serde_json::Map` collection.
 
 ## License
 
@@ -119,7 +116,7 @@ Licensed under either of
 
 at your option.
 
-### Contribution
+## Contribution
 
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any

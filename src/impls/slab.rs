@@ -59,10 +59,7 @@ impl<T> GetMut<usize> for Slab<T> {
 }
 
 impl<T> Insert for Slab<T> {
-	type Output<'a>
-	where
-		Self: 'a,
-	= usize;
+	type Output = usize;
 
 	fn insert(&mut self, element: T) -> usize {
 		self.insert(element)
