@@ -120,7 +120,7 @@ pub trait Collection {
 /// Abstract collection that can be immutably referenced.
 pub trait CollectionRef: Collection {
 	/// Type of references to items of the collection.
-	type ItemRef<'a>: Deref<Target = Self::Item>
+	type ItemRef<'a>: Clone + Deref<Target = Self::Item>
 	where
 		Self: 'a;
 }
@@ -142,7 +142,7 @@ pub trait Keyed: Collection {
 /// Abstract keyed collection whose key can be referenced.
 pub trait KeyedRef: Keyed {
 	/// Type of references to keys of the collection.
-	type KeyRef<'a>: Deref<Target = Self::Key>
+	type KeyRef<'a>: Clone + Deref<Target = Self::Key>
 	where
 		Self: 'a;
 }
