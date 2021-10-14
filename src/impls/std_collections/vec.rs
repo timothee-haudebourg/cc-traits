@@ -12,6 +12,8 @@ impl<T> CollectionRef for Vec<T> {
 	where
 		Self: 'a,
 	= &'a T;
+
+	crate::covariant_item_ref!();
 }
 
 impl<T> CollectionMut for Vec<T> {
@@ -19,6 +21,8 @@ impl<T> CollectionMut for Vec<T> {
 	where
 		Self: 'a,
 	= &'a mut T;
+
+	crate::covariant_item_mut!();
 }
 
 impl<T> WithCapacity for Vec<T> {

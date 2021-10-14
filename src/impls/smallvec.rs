@@ -13,6 +13,8 @@ impl<A: Array> CollectionRef for SmallVec<A> {
 	where
 		Self: 'a,
 	= &'a A::Item;
+
+	crate::covariant_item_ref!();
 }
 
 impl<A: Array> CollectionMut for SmallVec<A> {
@@ -20,6 +22,8 @@ impl<A: Array> CollectionMut for SmallVec<A> {
 	where
 		Self: 'a,
 	= &'a mut A::Item;
+
+	crate::covariant_item_mut!();
 }
 
 impl<A: Array> WithCapacity for SmallVec<A> {

@@ -103,6 +103,7 @@
 #![cfg_attr(feature = "nightly", feature(trait_alias))]
 
 mod impls;
+mod macros;
 
 #[cfg(feature = "nightly")]
 mod alias;
@@ -123,6 +124,14 @@ pub trait CollectionRef: Collection {
 	type ItemRef<'a>: Clone + Deref<Target = Self::Item>
 	where
 		Self: 'a;
+
+	/// Changes an item reference into a shorter lived reference.
+	///
+	/// Item references are [covariant](https://doc.rust-lang.org/nomicon/subtyping.html#variance) with
+	/// regard to the defined lifetime parameter `'a`.
+	/// Since this cannot be directly expressed by the type system, this associated function
+	/// allows one to explicitly shorten the reference's lifetime.
+	fn upcast_item_ref<'short, 'long: 'short>(r: Self::ItemRef<'long>) -> Self::ItemRef<'short>;
 }
 
 /// Abstract collection that can be mutably referenced.
@@ -131,6 +140,11 @@ pub trait CollectionMut: Collection {
 	type ItemMut<'a>: DerefMut<Target = Self::Item>
 	where
 		Self: 'a;
+
+	/// Changes an item mutable reference into a shorter lived mutable reference.
+	///
+	/// See the [`CollectionRef::upcast_item_ref`] function for more information.
+	fn upcast_item_mut<'short, 'long: 'short>(r: Self::ItemMut<'long>) -> Self::ItemMut<'short>;
 }
 
 /// Abstract keyed collection.
@@ -145,6 +159,11 @@ pub trait KeyedRef: Keyed {
 	type KeyRef<'a>: Clone + Deref<Target = Self::Key>
 	where
 		Self: 'a;
+
+	/// Changes a key reference into a shorter lived reference.
+	///
+	/// See the [`CollectionRef::upcast_item_ref`] function for more information.
+	fn upcast_key_ref<'short, 'long: 'short>(r: Self::KeyRef<'long>) -> Self::KeyRef<'short>;
 }
 
 /// Collection that can be created with a minimum given capacity.

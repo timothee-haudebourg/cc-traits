@@ -10,6 +10,8 @@ impl<T> CollectionRef for BTreeSet<T> {
 	where
 		Self: 'a,
 	= &'a T;
+
+	crate::covariant_item_ref!();
 }
 
 impl<T> CollectionMut for BTreeSet<T> {
@@ -17,6 +19,8 @@ impl<T> CollectionMut for BTreeSet<T> {
 	where
 		Self: 'a,
 	= &'a mut T;
+
+	crate::covariant_item_mut!();
 }
 
 impl<T> Len for BTreeSet<T> {

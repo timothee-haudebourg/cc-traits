@@ -13,6 +13,8 @@ impl<T> CollectionRef for Slab<T> {
 	where
 		Self: 'a,
 	= &'a T;
+
+	crate::covariant_item_ref!();
 }
 
 impl<T> CollectionMut for Slab<T> {
@@ -20,6 +22,8 @@ impl<T> CollectionMut for Slab<T> {
 	where
 		Self: 'a,
 	= &'a mut T;
+
+	crate::covariant_item_mut!();
 }
 
 impl<T> WithCapacity for Slab<T> {

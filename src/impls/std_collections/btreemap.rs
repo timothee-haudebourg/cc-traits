@@ -13,6 +13,8 @@ impl<K, V> CollectionRef for BTreeMap<K, V> {
 	where
 		Self: 'a,
 	= &'a V;
+
+	crate::covariant_item_ref!();
 }
 
 impl<K, V> CollectionMut for BTreeMap<K, V> {
@@ -20,6 +22,8 @@ impl<K, V> CollectionMut for BTreeMap<K, V> {
 	where
 		Self: 'a,
 	= &'a mut V;
+
+	crate::covariant_item_mut!();
 }
 
 impl<K, V> Keyed for BTreeMap<K, V> {
@@ -31,6 +35,8 @@ impl<K, V> KeyedRef for BTreeMap<K, V> {
 	where
 		Self: 'a,
 	= &'a K;
+
+	crate::covariant_key_ref!();
 }
 
 impl<K, V> Len for BTreeMap<K, V> {

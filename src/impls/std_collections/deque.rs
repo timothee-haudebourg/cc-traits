@@ -13,6 +13,8 @@ impl<T> CollectionRef for VecDeque<T> {
 	where
 		Self: 'a,
 	= &'a T;
+
+	crate::covariant_item_ref!();
 }
 
 impl<T> CollectionMut for VecDeque<T> {
@@ -20,6 +22,8 @@ impl<T> CollectionMut for VecDeque<T> {
 	where
 		Self: 'a,
 	= &'a mut T;
+
+	crate::covariant_item_mut!();
 }
 
 impl<T> WithCapacity for VecDeque<T> {
