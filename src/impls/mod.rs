@@ -6,3 +6,6 @@ mod slab;
 
 #[cfg(feature = "smallvec")]
 mod smallvec;
+
+#[cfg(feature = "serde_json")]
+mod serde_json;
