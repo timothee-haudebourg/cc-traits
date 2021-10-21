@@ -24,7 +24,7 @@ pub trait Insert: Collection {
 ## Usage
 
 Such traits can be used to define collections with special properties,
-indepently of the actual internal data structure.
+independently of the actual internal data structure.
 For instance the following code defines an `Ordered<S>` stack collection,
 guarantying the well-sortedness of the elements in the stack.
 
@@ -104,8 +104,10 @@ traits are implemented for
 some popular crates if you enable the feature of the same name.
 Here are the supported crates:
 
-  - `slab` providing the `Slab` collection.
-  - `smallvec` providing the `SmallVec` collection.
+  - [`slab`](https://crates.io/crates/slab) providing the `Slab` collection.
+  - [`smallvec`](https://crates.io/crates/smallvec) providing the `SmallVec` collection.
+  - [`serde_json`](https://crates.io/crates/serde_json) providing the `Map<String, Value>` collection for JSON objects.
+  - [`ijson`](https://crates.io/crates/ijson) providing the `IObject` and `IArray` collections.
 
 ## License
 
