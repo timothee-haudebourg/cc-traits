@@ -17,7 +17,7 @@
 //! # Usage
 //!
 //! Such traits can be used to define collections with special properties,
-//! indepently of the actual internal data structure.
+//! independently of the actual internal data structure.
 //! For instance the following code defines an `Ordered<S>` stack collection,
 //! guarantying the well-sortedness of the elements in the stack.
 //!
@@ -97,8 +97,10 @@
 //! some popular crates if you enable the feature of the same name.
 //! Here are the supported crates:
 //!
-//!   - `slab` providing the `Slab` collection.
-//!   - `smallvec` providing the `SmallVec` collection.
+//!   - [`slab`](http://crates.io/crates/slab) providing the `Slab` collection.
+//!   - [`smallvec`](http://crates.io/crates/smallvec) providing the `SmallVec` collection.
+//!   - [`serde_json`](http://crates.io/crates/serde_json) providing the `Map<String, Value>` collection for JSON objects.
+//!   - [`ijson`](http://crates.io/crates/ijson) providing the `IObject` and `IArray` collections.
 #![feature(generic_associated_types)]
 #![cfg_attr(feature = "nightly", feature(trait_alias))]
 
@@ -131,6 +133,9 @@ pub trait CollectionRef: Collection {
 	/// regard to the defined lifetime parameter `'a`.
 	/// Since this cannot be directly expressed by the type system, this associated function
 	/// allows one to explicitly shorten the reference's lifetime.
+	/// 
+	/// You can use the [`covariant_item_ref!`] macro to automatically
+	/// implement this function.
 	fn upcast_item_ref<'short, 'long: 'short>(r: Self::ItemRef<'long>) -> Self::ItemRef<'short>;
 }
 
@@ -144,6 +149,8 @@ pub trait CollectionMut: Collection {
 	/// Changes an item mutable reference into a shorter lived mutable reference.
 	///
 	/// See the [`CollectionRef::upcast_item_ref`] function for more information.
+	/// You can use the [`covariant_item_mut!`] macro to automatically
+	/// implement this function.
 	fn upcast_item_mut<'short, 'long: 'short>(r: Self::ItemMut<'long>) -> Self::ItemMut<'short>;
 }
 
@@ -163,6 +170,8 @@ pub trait KeyedRef: Keyed {
 	/// Changes a key reference into a shorter lived reference.
 	///
 	/// See the [`CollectionRef::upcast_item_ref`] function for more information.
+	/// You can use the [`covariant_key_ref!`] macro to automatically
+	/// implement this function.
 	fn upcast_key_ref<'short, 'long: 'short>(r: Self::KeyRef<'long>) -> Self::KeyRef<'short>;
 }
 
