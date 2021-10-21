@@ -97,10 +97,10 @@
 //! some popular crates if you enable the feature of the same name.
 //! Here are the supported crates:
 //!
-//!   - [`slab`](http://crates.io/crates/slab) providing the `Slab` collection.
-//!   - [`smallvec`](http://crates.io/crates/smallvec) providing the `SmallVec` collection.
-//!   - [`serde_json`](http://crates.io/crates/serde_json) providing the `Map<String, Value>` collection for JSON objects.
-//!   - [`ijson`](http://crates.io/crates/ijson) providing the `IObject` and `IArray` collections.
+//!   - [`slab`](https://crates.io/crates/slab) providing the `Slab` collection.
+//!   - [`smallvec`](https://crates.io/crates/smallvec) providing the `SmallVec` collection.
+//!   - [`serde_json`](https://crates.io/crates/serde_json) providing the `Map<String, Value>` collection for JSON objects.
+//!   - [`ijson`](https://crates.io/crates/ijson) providing the `IObject` and `IArray` collections.
 #![feature(generic_associated_types)]
 #![cfg_attr(feature = "nightly", feature(trait_alias))]
 
