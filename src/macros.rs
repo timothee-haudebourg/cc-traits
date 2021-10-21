@@ -4,9 +4,16 @@
 /// ## Example
 ///
 /// ```
-/// use cc_traits::{CollectionRef, covariant_item_ref};
+/// #![feature(generic_associated_types)]
+/// use cc_traits::{Collection, CollectionRef, covariant_item_ref};
 ///
-/// impl<T> CollectionRef for Vec<T> {
+/// pub struct MyVec<T>(Vec<T>);
+/// 
+/// impl<T> Collection for MyVec<T> {
+///   type Item = T;
+/// }
+/// 
+/// impl<T> CollectionRef for MyVec<T> {
 ///   type ItemRef<'a>
 ///   where
 ///     Self: 'a,
@@ -32,9 +39,16 @@ macro_rules! covariant_item_ref {
 /// ## Example
 ///
 /// ```
-/// use cc_traits::{CollectionMut, covariant_item_mut};
+/// #![feature(generic_associated_types)]
+/// use cc_traits::{Collection, CollectionMut, covariant_item_mut};
+/// 
+/// pub struct MyVec<T>(Vec<T>);
+/// 
+/// impl<T> Collection for MyVec<T> {
+///   type Item = T;
+/// }
 ///
-/// impl<T> CollectionMut for Vec<T> {
+/// impl<T> CollectionMut for MyVec<T> {
 ///   type ItemMut<'a>
 ///   where
 ///     Self: 'a,
@@ -60,9 +74,20 @@ macro_rules! covariant_item_mut {
 /// ## Example
 ///
 /// ```
-/// use cc_traits::{KeyedRef, covariant_key_ref};
+/// #![feature(generic_associated_types)]
+/// use cc_traits::{Collection, Keyed, KeyedRef, covariant_key_ref};
+/// 
+/// pub struct MyMap<K, V>(std::collections::HashMap<K, V>);
+/// 
+/// impl<K, V> Collection for MyMap<K, V> {
+///   type Item = V;
+/// }
 ///
-/// impl<T> KeyedRef for HashMap<K, V> {
+/// impl<K, V> Keyed for MyMap<K, V> {
+///   type Key = K;
+/// }
+/// 
+/// impl<K, V> KeyedRef for MyMap<K, V> {
 ///   type KeyRef<'a>
 ///   where
 ///     Self: 'a,
