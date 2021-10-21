@@ -1,31 +1,9 @@
 use crate::{
-	Collection,
-	CollectionRef,
-	CollectionMut,
-	Keyed,
-	KeyedRef,
-	Reserve,
+	Capacity, Clear, Collection, CollectionMut, CollectionRef, Get, GetMut, Iter, IterMut, Keyed,
+	KeyedRef, Len, MapInsert, MapIter, MapIterMut, PopBack, PushBack, Remove, Reserve,
 	WithCapacity,
-	Len,
-	Capacity,
-	Iter,
-	IterMut,
-	MapIter,
-	MapIterMut,
-	Get,
-	GetMut,
-	MapInsert,
-	Remove,
-	Clear,
-	PopBack,
-	PushBack,
 };
-use ijson::{
-	IValue,
-	IArray,
-	IObject,
-	IString
-};
+use ijson::{IArray, IObject, IString, IValue};
 
 impl Collection for IObject {
 	type Item = IValue;
