@@ -82,6 +82,17 @@ where
 	}
 }
 
+// impl<'a, Q: ?Sized> GetKeyValue<&'a Q> for serde_json::Map<String, serde_json::Value>
+// where
+// 	String: Borrow<Q>,
+// 	Q: Ord + Hash,
+// {
+// 	#[inline(always)]
+// 	fn get_key_value(&self, q: &'a Q) -> Option<(&String, &serde_json::Value)> {
+// 		self.get_key_value(q)
+// 	}
+// }
+
 impl MapInsert<String> for serde_json::Map<String, serde_json::Value> {
 	type Output = Option<serde_json::Value>;
 

@@ -1,7 +1,7 @@
 use crate::{
-	Capacity, Clear, Collection, CollectionMut, CollectionRef, Get, GetMut, Iter, IterMut, Keyed,
-	KeyedRef, Len, MapInsert, MapIter, MapIterMut, PopBack, PushBack, Remove, Reserve,
-	WithCapacity,
+	Capacity, Clear, Collection, CollectionMut, CollectionRef, Get, GetKeyValue, GetKeyValueMut,
+	GetMut, Iter, IterMut, Keyed, KeyedRef, Len, MapInsert, MapIter, MapIterMut, PopBack, PushBack,
+	Remove, Reserve, WithCapacity,
 };
 use ijson::{IArray, IObject, IString, IValue};
 
@@ -68,10 +68,24 @@ impl<Q: ijson::object::ObjectIndex> Get<Q> for IObject {
 	}
 }
 
+impl<Q: ijson::object::ObjectIndex> GetKeyValue<Q> for IObject {
+	#[inline(always)]
+	fn get_key_value(&self, q: Q) -> Option<(&IString, &IValue)> {
+		self.get_key_value(q)
+	}
+}
+
 impl<Q: ijson::object::ObjectIndex> GetMut<Q> for IObject {
 	#[inline(always)]
 	fn get_mut(&mut self, q: Q) -> Option<&mut IValue> {
 		self.get_mut(q)
+	}
+}
+
+impl<Q: ijson::object::ObjectIndex> GetKeyValueMut<Q> for IObject {
+	#[inline(always)]
+	fn get_key_value_mut(&mut self, q: Q) -> Option<(&IString, &mut IValue)> {
+		self.get_key_value_mut(q)
 	}
 }
 

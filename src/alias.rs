@@ -70,7 +70,8 @@ pub trait SetMut<T> = Set<T> + Insert<Output = bool> + for<'a> Remove<&'a T>;
 /// Imutable map data structure.
 ///
 /// A map is an unordered collection storing key-value pairs, indexed by the key.
-pub trait Map<K, V> = Keyed<Key = K, Item = V> + Len + for<'a> Get<&'a K>;
+pub trait Map<K, V> =
+	Keyed<Key = K, Item = V> + Len + for<'a> Get<&'a K> + for<'a> GetKeyValue<&'a K>;
 
 /// Mutable map data structure.
 pub trait MapMut<K, V> =

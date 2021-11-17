@@ -1,6 +1,6 @@
 use crate::{
-	Clear, Collection, CollectionMut, CollectionRef, Get, GetMut, Iter, Keyed, KeyedRef, Len,
-	MapInsert, MapIter, MapIterMut, Remove,
+	Clear, Collection, CollectionMut, CollectionRef, Get, GetKeyValue, GetMut, Iter, Keyed,
+	KeyedRef, Len, MapInsert, MapIter, MapIterMut, Remove,
 };
 use std::{borrow::Borrow, collections::BTreeMap};
 
@@ -59,6 +59,17 @@ where
 	#[inline(always)]
 	fn get(&self, key: &'a Q) -> Option<&V> {
 		self.get(key)
+	}
+}
+
+impl<'a, Q, K: Ord, V> GetKeyValue<&'a Q> for BTreeMap<K, V>
+where
+	K: Borrow<Q>,
+	Q: Ord + ?Sized,
+{
+	#[inline(always)]
+	fn get_key_value(&self, key: &'a Q) -> Option<(&K, &V)> {
+		self.get_key_value(key)
 	}
 }
 

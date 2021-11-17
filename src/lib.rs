@@ -133,7 +133,7 @@ pub trait CollectionRef: Collection {
 	/// regard to the defined lifetime parameter `'a`.
 	/// Since this cannot be directly expressed by the type system, this associated function
 	/// allows one to explicitly shorten the reference's lifetime.
-	/// 
+	///
 	/// You can use the [`covariant_item_ref!`] macro to automatically
 	/// implement this function.
 	fn upcast_item_ref<'short, 'long: 'short>(r: Self::ItemRef<'long>) -> Self::ItemRef<'short>;
@@ -221,6 +221,18 @@ pub trait Get<T>: CollectionRef {
 pub trait GetMut<T>: Get<T> + CollectionMut {
 	/// Returns a mutable reference to the item stored behind the given key (if any).
 	fn get_mut(&mut self, key: T) -> Option<Self::ItemMut<'_>>;
+}
+
+/// Queryable map.
+pub trait GetKeyValue<T>: CollectionRef + KeyedRef {
+	/// Returns the key-value pair matching the given `key`.
+	fn get_key_value(&self, key: T) -> Option<(Self::KeyRef<'_>, Self::ItemRef<'_>)>;
+}
+
+/// Mutably queryable map.
+pub trait GetKeyValueMut<T>: CollectionMut + KeyedRef {
+	/// Returns the key-value pair matching the given `key`, with a mutable reference to the value.
+	fn get_key_value_mut(&mut self, key: T) -> Option<(Self::KeyRef<'_>, Self::ItemMut<'_>)>;
 }
 
 /// Collection exposing a reference to its front element.

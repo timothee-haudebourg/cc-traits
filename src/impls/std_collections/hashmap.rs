@@ -1,6 +1,6 @@
 use crate::{
-	Clear, Collection, CollectionMut, CollectionRef, Get, GetMut, Iter, Keyed, KeyedRef, Len,
-	MapInsert, MapIter, MapIterMut, Remove,
+	Clear, Collection, CollectionMut, CollectionRef, Get, GetKeyValue, GetMut, Iter, Keyed,
+	KeyedRef, Len, MapInsert, MapIter, MapIterMut, Remove,
 };
 use std::{borrow::Borrow, collections::HashMap, hash::Hash};
 
@@ -70,6 +70,17 @@ where
 	#[inline(always)]
 	fn get_mut(&mut self, key: &'a Q) -> Option<&mut V> {
 		self.get_mut(key)
+	}
+}
+
+impl<'a, Q, K: Hash + Eq, V> GetKeyValue<&'a Q> for HashMap<K, V>
+where
+	K: Borrow<Q>,
+	Q: Hash + Eq + ?Sized,
+{
+	#[inline(always)]
+	fn get_key_value(&self, key: &'a Q) -> Option<(&K, &V)> {
+		self.get_key_value(key)
 	}
 }
 
