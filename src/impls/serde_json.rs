@@ -1,6 +1,6 @@
 use crate::{
-	Clear, Collection, CollectionMut, CollectionRef, Get, GetMut, Keyed, KeyedRef, Len, MapInsert,
-	MapIter, MapIterMut, Remove,
+	Clear, Collection, CollectionMut, CollectionRef, Get, GetKeyValue, GetMut, Keyed, KeyedRef,
+	Len, MapInsert, MapIter, MapIterMut, Remove,
 };
 use std::{borrow::Borrow, cmp::Ord, hash::Hash};
 
@@ -82,16 +82,17 @@ where
 	}
 }
 
-// impl<'a, Q: ?Sized> GetKeyValue<&'a Q> for serde_json::Map<String, serde_json::Value>
-// where
-// 	String: Borrow<Q>,
-// 	Q: Ord + Hash,
-// {
-// 	#[inline(always)]
-// 	fn get_key_value(&self, q: &'a Q) -> Option<(&String, &serde_json::Value)> {
-// 		self.get_key_value(q)
-// 	}
-// }
+impl<'a, Q: ?Sized> GetKeyValue<&'a Q> for serde_json::Map<String, serde_json::Value>
+where
+	String: Borrow<Q>,
+	Q: Ord + Hash,
+{
+	#[inline(always)]
+	#[deny(unconditional_recursion)]
+	fn get_key_value(&self, q: &'a Q) -> Option<(&String, &serde_json::Value)> {
+		self.get_key_value(q)
+	}
+}
 
 impl MapInsert<String> for serde_json::Map<String, serde_json::Value> {
 	type Output = Option<serde_json::Value>;
