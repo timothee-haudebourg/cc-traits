@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.3] - 2021-12-09
+### Added
+- Explicit bound `Self: 'long` in reference upcast functions (`upcast_item_ref`, `upcast_item_mut`, `upcast_key_ref`).
+  This is required by the latest version of Rust.
+
 ## [0.7.2] - 2021-12-01
 ### Added
 - Impl `GetKeyValue` for `serde_json::Map<String, serde_json::Value>`.

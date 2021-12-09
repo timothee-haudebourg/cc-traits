@@ -136,7 +136,9 @@ pub trait CollectionRef: Collection {
 	///
 	/// You can use the [`covariant_item_ref!`] macro to automatically
 	/// implement this function.
-	fn upcast_item_ref<'short, 'long: 'short>(r: Self::ItemRef<'long>) -> Self::ItemRef<'short>;
+	fn upcast_item_ref<'short, 'long: 'short>(r: Self::ItemRef<'long>) -> Self::ItemRef<'short>
+	where
+		Self: 'long;
 }
 
 /// Abstract collection that can be mutably referenced.
@@ -151,7 +153,9 @@ pub trait CollectionMut: Collection {
 	/// See the [`CollectionRef::upcast_item_ref`] function for more information.
 	/// You can use the [`covariant_item_mut!`] macro to automatically
 	/// implement this function.
-	fn upcast_item_mut<'short, 'long: 'short>(r: Self::ItemMut<'long>) -> Self::ItemMut<'short>;
+	fn upcast_item_mut<'short, 'long: 'short>(r: Self::ItemMut<'long>) -> Self::ItemMut<'short>
+	where
+		Self: 'long;
 }
 
 /// Abstract keyed collection.
@@ -172,7 +176,9 @@ pub trait KeyedRef: Keyed {
 	/// See the [`CollectionRef::upcast_item_ref`] function for more information.
 	/// You can use the [`covariant_key_ref!`] macro to automatically
 	/// implement this function.
-	fn upcast_key_ref<'short, 'long: 'short>(r: Self::KeyRef<'long>) -> Self::KeyRef<'short>;
+	fn upcast_key_ref<'short, 'long: 'short>(r: Self::KeyRef<'long>) -> Self::KeyRef<'short>
+	where
+		Self: 'long;
 }
 
 /// Collection that can be created with a minimum given capacity.

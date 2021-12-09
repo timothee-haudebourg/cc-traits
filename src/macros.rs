@@ -25,9 +25,10 @@
 #[macro_export]
 macro_rules! covariant_item_ref {
 	() => {
-		fn upcast_item_ref<'short, 'long: 'short>(
-			r: Self::ItemRef<'long>,
-		) -> Self::ItemRef<'short> {
+		fn upcast_item_ref<'short, 'long: 'short>(r: Self::ItemRef<'long>) -> Self::ItemRef<'short>
+		where
+			Self: 'long,
+		{
 			r
 		}
 	};
@@ -60,9 +61,10 @@ macro_rules! covariant_item_ref {
 #[macro_export]
 macro_rules! covariant_item_mut {
 	() => {
-		fn upcast_item_mut<'short, 'long: 'short>(
-			r: Self::ItemMut<'long>,
-		) -> Self::ItemMut<'short> {
+		fn upcast_item_mut<'short, 'long: 'short>(r: Self::ItemMut<'long>) -> Self::ItemMut<'short>
+		where
+			Self: 'long,
+		{
 			r
 		}
 	};
@@ -99,7 +101,10 @@ macro_rules! covariant_item_mut {
 #[macro_export]
 macro_rules! covariant_key_ref {
 	() => {
-		fn upcast_key_ref<'short, 'long: 'short>(r: Self::KeyRef<'long>) -> Self::KeyRef<'short> {
+		fn upcast_key_ref<'short, 'long: 'short>(r: Self::KeyRef<'long>) -> Self::KeyRef<'short>
+		where
+			Self: 'long,
+		{
 			r
 		}
 	};
