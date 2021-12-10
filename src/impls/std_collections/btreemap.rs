@@ -1,4 +1,8 @@
-use crate::{Clear, Collection, CollectionMut, CollectionRef, Entry, EntryApi, Get, GetKeyValue, GetMut, Iter, Keyed, KeyedRef, KeyVacantEntry, Len, MapInsert, MapIter, MapIterMut, OccupiedEntry, Remove, VacantEntry};
+use crate::{
+	Clear, Collection, CollectionMut, CollectionRef, Entry, EntryApi, Get, GetKeyValue, GetMut,
+	Iter, KeyVacantEntry, Keyed, KeyedRef, Len, MapInsert, MapIter, MapIterMut, OccupiedEntry,
+	Remove, VacantEntry,
+};
 use std::{
 	borrow::Borrow,
 	collections::{btree_map as this_mod, BTreeMap as ThisMap},
@@ -192,17 +196,17 @@ impl<'a, K: Ord, V> VacantEntry<'a> for this_mod::VacantEntry<'a, K, V> {
 	type V = V;
 
 	#[inline(always)]
-	fn into_key(self) -> Self::K {
-		this_mod::VacantEntry::into_key(self)
-	}
-
-	#[inline(always)]
 	fn insert(self, value: Self::V) -> &'a mut Self::V {
 		this_mod::VacantEntry::insert(self, value)
 	}
 }
 
 impl<'a, K: Ord, V> KeyVacantEntry<'a> for this_mod::VacantEntry<'a, K, V> {
+	#[inline(always)]
+	fn into_key(self) -> Self::K {
+		this_mod::VacantEntry::into_key(self)
+	}
+
 	#[inline(always)]
 	fn key(&self) -> &Self::K {
 		this_mod::VacantEntry::key(self)
@@ -228,7 +232,7 @@ impl<K: Ord, V> EntryApi for ThisMap<K, V> {
 	}
 }
 
-#[cfg(feature="raw-api")]
+#[cfg(feature = "raw-api")]
 impl<'a, K, V> OccupiedEntry<'a> for this_mod::RawOccupiedEntryMut<'a, K, V> {
 	type K = K;
 	type V = V;
@@ -269,8 +273,7 @@ impl<'a, K, V> OccupiedEntry<'a> for this_mod::RawOccupiedEntryMut<'a, K, V> {
 	}
 }
 
-
-#[cfg(feature="raw-api")]
+#[cfg(feature = "raw-api")]
 impl<'a, K, V> crate::RawVacantEntry<'a> for this_mod::RawOccupiedEntryMut<'a, K, V> {
 	type K = K;
 	type V = V;
@@ -280,18 +283,23 @@ impl<'a, K, V> crate::RawVacantEntry<'a> for this_mod::RawOccupiedEntryMut<'a, K
 	}
 }
 
-
-#[cfg(feature="raw-api")]
-impl<Q: Ord + ToOwned<Owned = K>, K: Ord, V> crate::EntryRefApi<Q> for ThisMap<K, V>{
-	type Occ<'a> where Self: 'a = this_mod::RawOccupiedEntryMut<'a, K, V>;
-	type Vac<'a, 'b> where Self: 'a = crate::KeyedRawVacantEntry<'a, 'b, Q, this_mod::RawVacantEntryMut<'a, K, V>>;
+#[cfg(feature = "raw-api")]
+impl<Q: Ord + ToOwned<Owned = K>, K: Ord, V> crate::EntryRefApi<Q> for ThisMap<K, V> {
+	type Occ<'a>
+	where
+		Self: 'a,
+	= this_mod::RawOccupiedEntryMut<'a, K, V>;
+	type Vac<'a, 'b>
+	where
+		Self: 'a,
+	= crate::RefVacantEntry<'a, 'b, Q, this_mod::RawVacantEntryMut<'a, K, V>>;
 
 	fn entry_ref<'a, 'b: 'a>(&'a mut self, key: &'b Q) -> Entry<Self::Occ<'a>, Self::Vac<'a, 'b>> {
 		let mut raw = self.raw_entry_mut();
 		match raw.from_key(key) {
-			this_mod::RawEntryMut::Occupied(occ) => {Entry::Occupied(occ)}
+			this_mod::RawEntryMut::Occupied(occ) => Entry::Occupied(occ),
 			this_mod::RawEntryMut::Vacant(vac) => {
-				Entry::Vacant(crate::KeyedRawVacantEntry{key, raw: vac})
+				Entry::Vacant(crate::RefVacantEntry { key, raw: vac })
 			}
 		}
 	}

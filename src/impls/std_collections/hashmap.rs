@@ -1,4 +1,8 @@
-use crate::{Clear, Collection, CollectionMut, CollectionRef, Entry, EntryApi, Get, GetKeyValue, GetMut, Iter, Keyed, KeyedRef, KeyVacantEntry, Len, MapInsert, MapIter, MapIterMut, OccupiedEntry, Remove, VacantEntry};
+use crate::{
+	Clear, Collection, CollectionMut, CollectionRef, Entry, EntryApi, Get, GetKeyValue, GetMut,
+	Iter, KeyVacantEntry, Keyed, KeyedRef, Len, MapInsert, MapIter, MapIterMut, OccupiedEntry,
+	Remove, VacantEntry,
+};
 use std::{
 	borrow::Borrow,
 	collections::{hash_map as this_mod, HashMap as ThisMap},
@@ -193,17 +197,17 @@ impl<'a, K, V> VacantEntry<'a> for this_mod::VacantEntry<'a, K, V> {
 	type V = V;
 
 	#[inline(always)]
-	fn into_key(self) -> Self::K {
-		this_mod::VacantEntry::into_key(self)
-	}
-
-	#[inline(always)]
 	fn insert(self, value: Self::V) -> &'a mut Self::V {
 		this_mod::VacantEntry::insert(self, value)
 	}
 }
 
 impl<'a, K, V> KeyVacantEntry<'a> for this_mod::VacantEntry<'a, K, V> {
+	#[inline(always)]
+	fn into_key(self) -> Self::K {
+		this_mod::VacantEntry::into_key(self)
+	}
+
 	#[inline(always)]
 	fn key(&self) -> &Self::K {
 		this_mod::VacantEntry::key(self)
@@ -229,7 +233,7 @@ impl<K: Hash + Eq, V, S: BuildHasher> EntryApi for ThisMap<K, V, S> {
 	}
 }
 
-#[cfg(feature="raw-api")]
+#[cfg(feature = "raw-api")]
 impl<'a, K, V, S: BuildHasher> OccupiedEntry<'a> for this_mod::RawOccupiedEntryMut<'a, K, V, S> {
 	type K = K;
 	type V = V;
@@ -270,9 +274,10 @@ impl<'a, K, V, S: BuildHasher> OccupiedEntry<'a> for this_mod::RawOccupiedEntryM
 	}
 }
 
-
-#[cfg(feature="raw-api")]
-impl<'a, K, V, S: BuildHasher> crate::RawVacantEntry<'a> for this_mod::RawOccupiedEntryMut<'a, K, V, S> {
+#[cfg(feature = "raw-api")]
+impl<'a, K, V, S: BuildHasher> crate::RawVacantEntry<'a>
+	for this_mod::RawOccupiedEntryMut<'a, K, V, S>
+{
 	type K = K;
 	type V = V;
 
@@ -281,18 +286,25 @@ impl<'a, K, V, S: BuildHasher> crate::RawVacantEntry<'a> for this_mod::RawOccupi
 	}
 }
 
-
-#[cfg(feature="raw-api")]
-impl<Q: Hash + Eq + ToOwned<Owned = K>, K: Hash + Eq, V, S: BuildHasher> crate::EntryRefApi<Q> for ThisMap<K, V, S>{
-	type Occ<'a> where Self: 'a = this_mod::RawOccupiedEntryMut<'a, K, V, S>;
-	type Vac<'a, 'b> where Self: 'a = crate::KeyedRawVacantEntry<'a, 'b, Q, this_mod::RawVacantEntryMut<'a, K, V, S>>;
+#[cfg(feature = "raw-api")]
+impl<Q: Hash + Eq + ToOwned<Owned = K>, K: Hash + Eq, V, S: BuildHasher> crate::EntryRefApi<Q>
+	for ThisMap<K, V, S>
+{
+	type Occ<'a>
+	where
+		Self: 'a,
+	= crate::RefOccupiedEntry<'a, this_mod::RawOccupiedEntryMut<'a, K, V, S>>;
+	type Vac<'a, 'b>
+	where
+		Self: 'a,
+	= crate::RefVacantEntry<'a, 'b, Q, this_mod::RawVacantEntryMut<'a, K, V, S>>;
 
 	fn entry_ref<'a, 'b: 'a>(&'a mut self, key: &'b Q) -> Entry<Self::Occ<'a>, Self::Vac<'a, 'b>> {
 		let mut raw = self.raw_entry_mut();
 		match raw.from_key(key) {
-			this_mod::RawEntryMut::Occupied(occ) => {Entry::Occupied(occ)}
+			this_mod::RawEntryMut::Occupied(occ) => Entry::Occupied(crate::RefOccupiedEntry(occ)),
 			this_mod::RawEntryMut::Vacant(vac) => {
-				Entry::Vacant(crate::KeyedRawVacantEntry{key, raw: vac})
+				Entry::Vacant(crate::RefVacantEntry { key, raw: vac })
 			}
 		}
 	}

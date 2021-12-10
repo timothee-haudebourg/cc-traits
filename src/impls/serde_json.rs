@@ -4,7 +4,7 @@ use crate::{
 };
 use std::{borrow::Borrow, cmp::Ord, hash::Hash};
 
-use serde_json::{Map as ThisMap, map as this_mod};
+use serde_json::{map as this_mod, Map as ThisMap};
 
 impl Collection for ThisMap<String, serde_json::Value> {
 	type Item = serde_json::Value;

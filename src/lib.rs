@@ -335,13 +335,16 @@ pub trait EntryApi: Keyed {
 	fn entry(&mut self, key: Self::Key) -> Entry<Self::Occ<'_>, Self::Vac<'_>>;
 }
 
-pub trait EntryRefApi<Q: ToOwned<Owned=Self::Key>>: Keyed {
+pub trait EntryRefApi<Q: ToOwned<Owned = Self::Key>>: Keyed {
 	type Occ<'a>: OccupiedEntry<'a, K = Self::Key, V = Self::Item>
 	where
-	Self: 'a, Q: 'a;
+		Self: 'a,
+		Q: 'a;
 	type Vac<'a, 'b: 'a>: VacantEntry<'a, K = Self::Key, V = Self::Item>
 	where
-	Self: 'a, Q: 'a+'b, 'a: 'b;
+		Self: 'a,
+		Q: 'a + 'b,
+		'a: 'b;
 
 	fn entry_ref<'a, 'b: 'a>(&'a mut self, key: &'b Q) -> Entry<Self::Occ<'a>, Self::Vac<'a, 'b>>;
 }

@@ -19,12 +19,12 @@ pub trait OccupiedEntry<'a>: Sized {
 pub trait VacantEntry<'a>: Sized {
 	type K;
 	type V;
-	fn into_key(self) -> Self::K;
 	fn insert(self, value: Self::V) -> &'a mut Self::V;
 }
 
 pub trait KeyVacantEntry<'a>: VacantEntry<'a> {
 	fn key(&self) -> &Self::K;
+	fn into_key(self) -> Self::K;
 }
 
 pub enum Entry<Occ, Vac> {
@@ -125,9 +125,9 @@ where
 }
 
 impl<'a, Occ, Vac> Entry<Occ, Vac>
-	where
-		Occ: OccupiedEntry<'a>,
-		Vac: KeyVacantEntry<'a, K = Occ::K, V = Occ::V>,
+where
+	Occ: OccupiedEntry<'a>,
+	Vac: KeyVacantEntry<'a, K = Occ::K, V = Occ::V>,
 {
 	/// Returns a reference to this entry's key.
 	///
@@ -221,6 +221,53 @@ where
 }
 
 #[cfg(feature = "raw-api")]
+pub struct RefOccupiedEntry<'a, Occ: OccupiedEntry<'a>>(pub(crate) Occ);
+
+#[cfg(feature = "raw-api")]
+impl<'a, Occ: OccupiedEntry<'a>> OccupiedEntry<'a> for RefOccupiedEntry<'a, Occ> {
+	type K = K;
+	type V = V;
+
+	fn key(&self) -> &Self::K {
+		self.0.key()
+	}
+
+	fn remove_entry(self) -> (Self::K, Self::V) {
+		self.0.remove_entry()
+	}
+
+	fn get(&self) -> &Self::V {
+		self.0.get()
+	}
+
+	fn get_mut(&mut self) -> &mut Self::V {
+		self.0.get_mut()
+	}
+
+	fn into_mut(self) -> &'a mut Self::V {
+		self.0.into_mut()
+	}
+
+	fn insert(&mut self, value: Self::V) -> Self::V {
+		self.0.insert()
+	}
+
+	fn remove(self) -> Self::V {
+		self.0.remove()
+	}
+}
+
+#[cfg(feature = "raw-api")]
+impl<'a, Occ: OccupiedEntry> Debug for RefOccupiedEntry<'a, Occ> {
+	fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+		f.debug_struct("RefOccupiedEntry")
+			.field("key", self.key())
+			.field("value", self.get())
+			.finish_non_exhaustive()
+	}
+}
+
+#[cfg(feature = "raw-api")]
 pub trait RawVacantEntry<'a>: Sized {
 	type K;
 	type V;
@@ -228,13 +275,15 @@ pub trait RawVacantEntry<'a>: Sized {
 }
 
 #[cfg(feature = "raw-api")]
-pub struct KeyedRawVacantEntry<'a, 'b: 'a, Q: ToOwned<Owned=Vac::K>, Vac: RawVacantEntry<'a>>{
-	pub key: &'b Q,
-	pub raw: Vac
+pub struct RefVacantEntry<'a, 'b: 'a, Q: ToOwned<Owned = Vac::K>, Vac: RawVacantEntry<'a>> {
+	pub(crate) key: &'b Q,
+	pub(crate) raw: Vac,
 }
 
 #[cfg(feature = "raw-api")]
-impl<'a, 'b: 'a, Q: ToOwned<Owned=Vac::K>, Vac: RawVacantEntry> VacantEntry<'a> for KeyedRawVacantEntry<'a, 'b, Q, Vac> {
+impl<'a, 'b: 'a, Q: ToOwned<Owned = Vac::K>, Vac: RawVacantEntry> VacantEntry<'a>
+	for RefVacantEntry<'a, 'b, Q, Vac>
+{
 	type K = Vac::K;
 	type V = Vac::V;
 
@@ -248,8 +297,12 @@ impl<'a, 'b: 'a, Q: ToOwned<Owned=Vac::K>, Vac: RawVacantEntry> VacantEntry<'a> 
 }
 
 #[cfg(feature = "raw-api")]
-impl<'a, 'b: 'a, Q: ToOwned<Owned=Vac::K>, Vac: RawVacantEntry> Debug for KeyedRawVacantEntry<'a, 'b, Q, Vac> {
+impl<'a, 'b: 'a, Q: ToOwned<Owned = Vac::K>, Vac: RawVacantEntry> Debug
+	for RefVacantEntry<'a, 'b, Q, Vac>
+{
 	fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-		f.debug_struct("KeyedRawVacantEntry").field("key", self.key).finish_non_exhaustive()
+		f.debug_struct("RefVacantEntry")
+			.field("key", self.key)
+			.finish_non_exhaustive()
 	}
 }
