@@ -19,9 +19,12 @@ pub trait OccupiedEntry<'a>: Sized {
 pub trait VacantEntry<'a>: Sized {
 	type K;
 	type V;
-	fn key(&self) -> &Self::K;
 	fn into_key(self) -> Self::K;
 	fn insert(self, value: Self::V) -> &'a mut Self::V;
+}
+
+pub trait KeyVacantEntry<'a>: VacantEntry<'a> {
+	fn key(&self) -> &Self::K;
 }
 
 pub enum Entry<Occ, Vac> {
@@ -86,53 +89,6 @@ where
 		}
 	}
 
-	#[inline]
-	/// Ensures a value is in the entry by inserting, if empty, the result of the default function.
-	/// This method allows for generating key-derived values for insertion by providing the default
-	/// function a reference to the key that was moved during the `.entry(key)` method call.
-	///
-	/// The reference to the moved key is provided so that cloning or copying the key is
-	/// unnecessary, unlike with `.or_insert_with(|| ... )`.
-	///
-	/// # Examples
-	///
-	/// ```
-	/// use std::collections::HashMap;
-	///
-	/// let mut map: HashMap<&str, usize> = HashMap::new();
-	///
-	/// map.entry("poneyland").or_insert_with_key(|key| key.chars().count());
-	///
-	/// assert_eq!(map["poneyland"], 9);
-	/// ```
-	pub fn or_insert_with_key<F: FnOnce(&Occ::K) -> Occ::V>(self, default: F) -> &'a mut Occ::V {
-		match self {
-			Occupied(entry) => entry.into_mut(),
-			Vacant(entry) => {
-				let value = default(entry.key());
-				entry.insert(value)
-			}
-		}
-	}
-
-	/// Returns a reference to this entry's key.
-	///
-	/// # Examples
-	///
-	/// ```
-	/// use std::collections::HashMap;
-	///
-	/// let mut map: HashMap<&str, u32> = HashMap::new();
-	/// assert_eq!(map.entry("poneyland").key(), &"poneyland");
-	/// ```
-	#[inline]
-	pub fn key(&self) -> &Occ::K {
-		match *self {
-			Occupied(ref entry) => entry.key(),
-			Vacant(ref entry) => entry.key(),
-		}
-	}
-
 	/// Provides in-place mutable access to an occupied entry before any
 	/// potential inserts into the map.
 	///
@@ -164,6 +120,59 @@ where
 				Occupied(entry)
 			}
 			Vacant(entry) => Vacant(entry),
+		}
+	}
+}
+
+impl<'a, Occ, Vac> Entry<Occ, Vac>
+	where
+		Occ: OccupiedEntry<'a>,
+		Vac: KeyVacantEntry<'a, K = Occ::K, V = Occ::V>,
+{
+	/// Returns a reference to this entry's key.
+	///
+	/// # Examples
+	///
+	/// ```
+	/// use std::collections::HashMap;
+	///
+	/// let mut map: HashMap<&str, u32> = HashMap::new();
+	/// assert_eq!(map.entry("poneyland").key(), &"poneyland");
+	/// ```
+	#[inline]
+	pub fn key(&self) -> &Occ::K {
+		match *self {
+			Occupied(ref entry) => entry.key(),
+			Vacant(ref entry) => entry.key(),
+		}
+	}
+
+	#[inline]
+	/// Ensures a value is in the entry by inserting, if empty, the result of the default function.
+	/// This method allows for generating key-derived values for insertion by providing the default
+	/// function a reference to the key that was moved during the `.entry(key)` method call.
+	///
+	/// The reference to the moved key is provided so that cloning or copying the key is
+	/// unnecessary, unlike with `.or_insert_with(|| ... )`.
+	///
+	/// # Examples
+	///
+	/// ```
+	/// use std::collections::HashMap;
+	///
+	/// let mut map: HashMap<&str, usize> = HashMap::new();
+	///
+	/// map.entry("poneyland").or_insert_with_key(|key| key.chars().count());
+	///
+	/// assert_eq!(map["poneyland"], 9);
+	/// ```
+	pub fn or_insert_with_key<F: FnOnce(&Occ::K) -> Occ::V>(self, default: F) -> &'a mut Occ::V {
+		match self {
+			Occupied(entry) => entry.into_mut(),
+			Vacant(entry) => {
+				let value = default(entry.key());
+				entry.insert(value)
+			}
 		}
 	}
 }
@@ -208,5 +217,39 @@ where
 			Vacant(ref v) => f.debug_tuple("Entry").field(v).finish(),
 			Occupied(ref o) => f.debug_tuple("Entry").field(o).finish(),
 		}
+	}
+}
+
+#[cfg(feature = "raw-api")]
+pub trait RawVacantEntry<'a>: Sized {
+	type K;
+	type V;
+	fn insert(self, key: Self::K, value: Self::V) -> (&'a mut Self::K, &'a mut Self::V);
+}
+
+#[cfg(feature = "raw-api")]
+pub struct KeyedRawVacantEntry<'a, 'b: 'a, Q: ToOwned<Owned=Vac::K>, Vac: RawVacantEntry<'a>>{
+	pub key: &'b Q,
+	pub raw: Vac
+}
+
+#[cfg(feature = "raw-api")]
+impl<'a, 'b: 'a, Q: ToOwned<Owned=Vac::K>, Vac: RawVacantEntry> VacantEntry<'a> for KeyedRawVacantEntry<'a, 'b, Q, Vac> {
+	type K = Vac::K;
+	type V = Vac::V;
+
+	fn into_key(self) -> Self::K {
+		self.key.to_owned()
+	}
+
+	fn insert(self, value: Self::V) -> &'a mut Self::V {
+		self.raw.insert(self.key.to_owned(), value).1
+	}
+}
+
+#[cfg(feature = "raw-api")]
+impl<'a, 'b: 'a, Q: ToOwned<Owned=Vac::K>, Vac: RawVacantEntry> Debug for KeyedRawVacantEntry<'a, 'b, Q, Vac> {
+	fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+		f.debug_struct("KeyedRawVacantEntry").field("key", self.key).finish_non_exhaustive()
 	}
 }

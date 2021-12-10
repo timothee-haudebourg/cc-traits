@@ -14,6 +14,7 @@ readme = "README.md"
 [features]
 nostd = []
 nightly = []
+raw-api = []
 
 [dependencies]
 slab = { version = "^0.4", optional = true }

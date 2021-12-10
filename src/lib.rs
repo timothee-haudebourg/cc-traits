@@ -103,6 +103,7 @@
 //!   - [`ijson`](https://crates.io/crates/ijson) providing the `IObject` and `IArray` collections.
 #![feature(generic_associated_types)]
 #![cfg_attr(feature = "nightly", feature(trait_alias))]
+#![cfg_attr(feature = "raw-api", feature(hash_raw_entry))]
 
 mod impls;
 mod macros;
@@ -326,16 +327,23 @@ pub trait MapInsert<K>: Collection {
 pub trait EntryApi: Keyed {
 	type Occ<'a>: OccupiedEntry<'a, K = Self::Key, V = Self::Item>
 	where
-		Self: 'a,
-		Self::Key: 'a,
-		Self::Item: 'a;
-	type Vac<'a>: VacantEntry<'a, K = Self::Key, V = Self::Item>
+		Self: 'a;
+	type Vac<'a>: KeyVacantEntry<'a, K = Self::Key, V = Self::Item>
 	where
-		Self: 'a,
-		Self::Key: 'a,
-		Self::Item: 'a;
+		Self: 'a;
 
 	fn entry(&mut self, key: Self::Key) -> Entry<Self::Occ<'_>, Self::Vac<'_>>;
+}
+
+pub trait EntryRefApi<Q: ToOwned<Owned=Self::Key>>: Keyed {
+	type Occ<'a>: OccupiedEntry<'a, K = Self::Key, V = Self::Item>
+	where
+	Self: 'a, Q: 'a;
+	type Vac<'a, 'b: 'a>: VacantEntry<'a, K = Self::Key, V = Self::Item>
+	where
+	Self: 'a, Q: 'a+'b, 'a: 'b;
+
+	fn entry_ref<'a, 'b: 'a>(&'a mut self, key: &'b Q) -> Entry<Self::Occ<'a>, Self::Vac<'a, 'b>>;
 }
 
 /// Mutable collection where new elements can be pushed on the front.

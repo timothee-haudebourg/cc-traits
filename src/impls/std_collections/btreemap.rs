@@ -1,7 +1,4 @@
-use crate::{
-	Clear, Collection, CollectionMut, CollectionRef, Entry, EntryApi, Get, GetKeyValue, GetMut,
-	Iter, Keyed, KeyedRef, Len, MapInsert, MapIter, MapIterMut, OccupiedEntry, Remove, VacantEntry,
-};
+use crate::{Clear, Collection, CollectionMut, CollectionRef, Entry, EntryApi, Get, GetKeyValue, GetMut, Iter, Keyed, KeyedRef, KeyVacantEntry, Len, MapInsert, MapIter, MapIterMut, OccupiedEntry, Remove, VacantEntry};
 use std::{
 	borrow::Borrow,
 	collections::{btree_map, BTreeMap},
@@ -195,11 +192,6 @@ impl<'a, K: Ord, V> VacantEntry<'a> for btree_map::VacantEntry<'a, K, V> {
 	type V = V;
 
 	#[inline(always)]
-	fn key(&self) -> &Self::K {
-		btree_map::VacantEntry::key(self)
-	}
-
-	#[inline(always)]
 	fn into_key(self) -> Self::K {
 		btree_map::VacantEntry::into_key(self)
 	}
@@ -207,6 +199,13 @@ impl<'a, K: Ord, V> VacantEntry<'a> for btree_map::VacantEntry<'a, K, V> {
 	#[inline(always)]
 	fn insert(self, value: Self::V) -> &'a mut Self::V {
 		btree_map::VacantEntry::insert(self, value)
+	}
+}
+
+impl<'a, K: Ord, V> KeyVacantEntry<'a> for btree_map::VacantEntry<'a, K, V> {
+	#[inline(always)]
+	fn key(&self) -> &Self::K {
+		btree_map::VacantEntry::key(self)
 	}
 }
 
@@ -225,6 +224,75 @@ impl<K: Ord, V> EntryApi for BTreeMap<K, V> {
 		match BTreeMap::entry(self, key) {
 			btree_map::Entry::Occupied(o) => Entry::Occupied(o),
 			btree_map::Entry::Vacant(v) => Entry::Vacant(v),
+		}
+	}
+}
+
+#[cfg(feature="raw-api")]
+impl<'a, K, V> OccupiedEntry<'a> for btree_map::RawOccupiedEntryMut<'a, K, V> {
+	type K = K;
+	type V = V;
+
+	#[inline(always)]
+	fn key(&self) -> &Self::K {
+		btree_map::RawOccupiedEntryMut::key(self)
+	}
+
+	#[inline(always)]
+	fn remove_entry(self) -> (Self::K, Self::V) {
+		btree_map::RawOccupiedEntryMut::remove_entry(self)
+	}
+
+	#[inline(always)]
+	fn get(&self) -> &Self::V {
+		btree_map::RawOccupiedEntryMut::get(self)
+	}
+
+	#[inline(always)]
+	fn get_mut(&mut self) -> &mut Self::V {
+		btree_map::RawOccupiedEntryMut::get_mut(self)
+	}
+
+	#[inline(always)]
+	fn into_mut(self) -> &'a mut Self::V {
+		btree_map::RawOccupiedEntryMut::into_mut(self)
+	}
+
+	#[inline(always)]
+	fn insert(&mut self, value: Self::V) -> Self::V {
+		btree_map::RawOccupiedEntryMut::insert(self, value)
+	}
+
+	#[inline(always)]
+	fn remove(self) -> Self::V {
+		btree_map::RawOccupiedEntryMut::remove(self)
+	}
+}
+
+
+#[cfg(feature="raw-api")]
+impl<'a, K, V> crate::RawVacantEntry<'a> for btree_map::RawOccupiedEntryMut<'a, K, V> {
+	type K = K;
+	type V = V;
+
+	fn insert(self, key: Self::K, value: Self::V) -> (&'a mut Self::K, &'a mut Self::V) {
+		btree_map::RawOccupiedEntryMut::insert(self, key, value)
+	}
+}
+
+
+#[cfg(feature="raw-api")]
+impl<Q: Ord + ToOwned<Owned = K>, K: Ord, V> crate::EntryRefApi<Q> for BTreeMap<K, V>{
+	type Occ<'a> where Self: 'a = btree_map::RawOccupiedEntryMut<'a, K, V>;
+	type Vac<'a, 'b> where Self: 'a = crate::KeyedRawVacantEntry<'a, 'b, Q, btree_map::RawVacantEntryMut<'a, K, V>>;
+
+	fn entry_ref<'a, 'b: 'a>(&'a mut self, key: &'b Q) -> Entry<Self::Occ<'a>, Self::Vac<'a, 'b>> {
+		let mut raw = self.raw_entry_mut();
+		match raw.from_key(key) {
+			btree_map::RawEntryMut::Occupied(occ) => {Entry::Occupied(occ)}
+			btree_map::RawEntryMut::Vacant(vac) => {
+				Entry::Vacant(crate::KeyedRawVacantEntry{key, raw: vac})
+			}
 		}
 	}
 }
