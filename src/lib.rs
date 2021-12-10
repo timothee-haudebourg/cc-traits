@@ -223,6 +223,12 @@ pub trait Get<T>: CollectionRef {
 	fn get(&self, key: T) -> Option<Self::ItemRef<'_>>;
 
 	/// Checks if the collection contains an item behind the given key.
+	fn contains_key(&self, key: T) -> bool {
+		self.get(key).is_some()
+	}
+
+	/// Checks if the collection contains an item behind the given key.
+	#[deprecated = "use `contains_key`"]
 	fn contains(&self, key: T) -> bool {
 		self.get(key).is_some()
 	}
@@ -324,6 +330,7 @@ pub trait MapInsert<K>: Collection {
 	fn insert(&mut self, key: K, value: Self::Item) -> Self::Output;
 }
 
+/// Mutable map that supports the entry api
 pub trait EntryApi: Keyed {
 	type Occ<'a>: OccupiedEntry<'a, K = Self::Key, V = Self::Item>
 	where
@@ -332,9 +339,32 @@ pub trait EntryApi: Keyed {
 	where
 		Self: 'a;
 
+	/// Gets the given key's corresponding entry in the map for in-place manipulation.
+	///
+	/// # Examples
+	///
+	/// ```
+	/// use std::collections::HashMap;
+	/// use std::ops::Index;
+	/// use cc_traits::{EntryApi, Entry, Get};
+	///
+	/// fn make_map() -> impl EntryApi<Key=char,Item=u32> + Index<&'static char, Output=u32> + Get<&'static char> { HashMap::new() }
+	/// let mut letters = make_map();
+	///
+	/// for ch in "a short treatise on fungi".chars() {
+	///     let counter = letters.entry(ch).or_insert(0);
+	///     *counter += 1;
+	/// }
+	///
+	/// assert_eq!(letters[&'s'], 2);
+	/// assert_eq!(letters[&'t'], 3);
+	/// assert_eq!(letters[&'u'], 1);
+	/// assert!(!letters.contains_key(&'y'));
+	/// ```
 	fn entry(&mut self, key: Self::Key) -> Entry<Self::Occ<'_>, Self::Vac<'_>>;
 }
 
+#[cfg(feature = "raw-api")]
 pub trait EntryRefApi<Q: ToOwned<Owned = Self::Key>>: Keyed {
 	type Occ<'a>: OccupiedEntry<'a, K = Self::Key, V = Self::Item>
 	where
@@ -346,6 +376,27 @@ pub trait EntryRefApi<Q: ToOwned<Owned = Self::Key>>: Keyed {
 		Q: 'a + 'b,
 		'a: 'b;
 
+	/// Gets the given key's corresponding entry in the map for in-place manipulation.
+	///
+	/// # Examples
+	///
+	/// ```
+	/// use std::collections::HashMap;
+	/// use std::ops::Index;
+	/// use cc_traits::{EntryRefApi, Entry, Get};
+	///
+	/// fn make_map() -> impl EntryRefApi<&'static str, Key=String,Item=u32> + Index<&'static str, Output=u32> + Get<&'static str> { HashMap::new() }
+	/// let mut words = make_map();
+	///
+	/// for s in "foo bar bar".split(' ') {
+	///     let counter = letters.entry_ref(s).or_insert(0);
+	///     *counter += 1;
+	/// }
+	///
+	/// assert_eq!(words["bar"], 2);
+	/// assert_eq!(words["foo"], 1);
+	/// assert!(!words.contains_key("baz"));
+	/// ```
 	fn entry_ref<'a, 'b: 'a>(&'a mut self, key: &'b Q) -> Entry<Self::Occ<'a>, Self::Vac<'a, 'b>>;
 }
 

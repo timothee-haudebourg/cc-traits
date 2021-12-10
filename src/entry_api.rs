@@ -3,12 +3,157 @@
 pub trait OccupiedEntry<'a>: Sized {
 	type K;
 	type V;
+	/// Gets a reference to the key in the entry.
+	///
+	/// # Examples
+	///
+	/// ```
+	///use std::collections::HashMap;
+	///use cc_traits::{EntryApi, Entry};
+	///
+	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=i32> { HashMap::new() }
+	/// let mut map = make_map();
+	/// map.entry("poneyland").or_insert(12);
+	/// assert_eq!(map.entry("poneyland").key(), &"poneyland");
+	/// ```
 	fn key(&self) -> &Self::K;
+
+	/// Take the ownership of the key and value from the map.
+	///
+	/// # Examples
+	///
+	/// ```
+	/// use std::collections::HashMap;
+	/// use cc_traits::{EntryApi, Entry, OccupiedEntry, Get};
+	///
+	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=i32> + Get<&'static str> { HashMap::new() }
+	/// let mut map = make_map();
+	/// map.entry("poneyland").or_insert(12);
+	///
+	/// if let Entry::Occupied(o) = map.entry("poneyland") {
+	///     // We delete the entry from the map.
+	///     o.remove_entry();
+	/// }
+	///
+	/// assert_eq!(map.contains_key("poneyland"), false);
+	/// ```
 	fn remove_entry(self) -> (Self::K, Self::V);
+
+	/// Gets a reference to the value in the entry.
+	///
+	/// # Examples
+	///
+	/// ```
+	/// use std::collections::HashMap;
+	/// use cc_traits::{EntryApi, Entry, OccupiedEntry};
+	///
+	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=i32> { HashMap::new() }
+	/// let mut map = make_map();
+	/// map.entry("poneyland").or_insert(12);
+	///
+	/// if let Entry::Occupied(o) = map.entry("poneyland") {
+	///     assert_eq!(o.get(), &12);
+	/// };
+	/// ```
 	fn get(&self) -> &Self::V;
+
+	/// Gets a mutable reference to the value in the entry.
+	///
+	/// If you need a reference to the `OccupiedEntry` which may outlive the
+	/// destruction of the `Entry` value, see [`into_mut`].
+	///
+	/// [`into_mut`]: Self::into_mut
+	///
+	/// # Examples
+	///
+	/// ```
+	/// use std::collections::HashMap;
+	/// use std::ops::Index;
+	/// use cc_traits::{EntryApi, Entry, OccupiedEntry};
+	///
+	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=i32> + Index<&'static str, Output=i32> { HashMap::new() }
+	/// let mut map = make_map();
+	/// map.entry("poneyland").or_insert(12);
+	///
+	/// assert_eq!(map["poneyland"], 12);
+	/// if let Entry::Occupied(mut o) = map.entry("poneyland") {
+	///     *o.get_mut() += 10;
+	///     assert_eq!(*o.get(), 22);
+	///
+	///     // We can use the same Entry multiple times.
+	///     *o.get_mut() += 2;
+	/// }
+	///
+	/// assert_eq!(map["poneyland"], 24);
+	/// ```
 	fn get_mut(&mut self) -> &mut Self::V;
+
+	/// Converts the `OccupiedEntry` into a mutable reference to the value in the entry
+	/// with a lifetime bound to the map itself.
+	///
+	/// If you need multiple references to the `OccupiedEntry`, see [`get_mut`].
+	///
+	/// [`get_mut`]: Self::get_mut
+	///
+	/// # Examples
+	///
+	/// ```
+	/// use std::collections::HashMap;
+	/// use std::ops::Index;
+	/// use cc_traits::{EntryApi, Entry, OccupiedEntry};
+	///
+	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=i32> + Index<&'static str, Output=i32>{ HashMap::new() }
+	/// let mut map = make_map();
+	/// map.entry("poneyland").or_insert(12);
+	///
+	/// assert_eq!(map["poneyland"], 12);
+	/// if let Entry::Occupied(o) = map.entry("poneyland") {
+	///     *o.into_mut() += 10;
+	/// }
+	///
+	/// assert_eq!(map["poneyland"], 22);
+	/// ```
 	fn into_mut(self) -> &'a mut Self::V;
+
+	/// Sets the value of the entry, and returns the entry's old value.
+	///
+	/// # Examples
+	///
+	/// ```
+	/// use std::collections::HashMap;
+	/// use std::ops::Index;
+	/// use cc_traits::{EntryApi, Entry, OccupiedEntry};
+	///
+	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=i32> + Index<&'static str, Output=i32> { HashMap::new() }
+	/// let mut map = make_map();
+	/// map.entry("poneyland").or_insert(12);
+	///
+	/// if let Entry::Occupied(mut o) = map.entry("poneyland") {
+	///     assert_eq!(o.insert(15), 12);
+	/// }
+	///
+	/// assert_eq!(map["poneyland"], 15);
+	/// ```
 	fn insert(&mut self, value: Self::V) -> Self::V;
+
+	/// Takes the value out of the entry, and returns it.
+	///
+	/// # Examples
+	///
+	/// ```
+	/// use std::collections::HashMap;
+	/// use cc_traits::{EntryApi, Entry, OccupiedEntry, Get};
+	///
+	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=i32> + Get<&'static str> { HashMap::new() }
+	/// let mut map = make_map();
+	/// map.entry("poneyland").or_insert(12);
+	///
+	/// if let Entry::Occupied(o) = map.entry("poneyland") {
+	///     assert_eq!(o.remove(), 12);
+	/// }
+	///
+	/// assert_eq!(map.contains_key("poneyland"), false);
+	/// ```
 	fn remove(self) -> Self::V {
 		self.remove_entry().1
 	}
@@ -19,11 +164,58 @@ pub trait OccupiedEntry<'a>: Sized {
 pub trait VacantEntry<'a>: Sized {
 	type K;
 	type V;
+	/// Sets the value of the entry with the `VacantEntry`'s key,
+	/// and returns a mutable reference to it.
+	///
+	/// # Examples
+	///
+	/// ```
+	/// use std::collections::HashMap;
+	/// use std::ops::Index;
+	/// use cc_traits::{EntryApi, Entry, VacantEntry};
+	///
+	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=i32> + Index<&'static str, Output=i32> { HashMap::new() }
+	/// let mut map = make_map();
+	///
+	/// if let Entry::Vacant(o) = map.entry("poneyland") {
+	///     o.insert(37);
+	/// }
+	/// assert_eq!(map["poneyland"], 37);
+	/// ```
 	fn insert(self, value: Self::V) -> &'a mut Self::V;
 }
 
 pub trait KeyVacantEntry<'a>: VacantEntry<'a> {
+	/// Gets a reference to the key that would be used when inserting a value
+	/// through the `VacantEntry`.
+	///
+	/// # Examples
+	///
+	/// ```
+	/// use std::collections::HashMap;
+	/// use cc_traits::{EntryApi, Entry, KeyVacantEntry};
+	///
+	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=i32> { HashMap::new() }
+	/// let mut map = make_map();
+	/// assert_eq!(map.entry("poneyland").key(), &"poneyland");
+	/// ```
 	fn key(&self) -> &Self::K;
+
+	/// Take ownership of the key.
+	///
+	/// # Examples
+	///
+	/// ```
+	/// use std::collections::HashMap;
+	/// use cc_traits::{EntryApi, Entry, KeyVacantEntry};
+	///
+	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=i32> { HashMap::new() }
+	/// let mut map = make_map();
+	///
+	/// if let Entry::Vacant(v) = map.entry("poneyland") {
+	///     v.into_key();
+	/// };
+	/// ```
 	fn into_key(self) -> Self::K;
 }
 
@@ -49,8 +241,11 @@ where
 	///
 	/// ```
 	/// use std::collections::HashMap;
+	/// use std::ops::Index;
+	/// use cc_traits::{EntryApi, Entry};
 	///
-	/// let mut map: HashMap<&str, u32> = HashMap::new();
+	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=u32> + Index<&'static str, Output=u32> { HashMap::new() }
+	/// let mut map = make_map();
 	///
 	/// map.entry("poneyland").or_insert(3);
 	/// assert_eq!(map["poneyland"], 3);
@@ -73,8 +268,11 @@ where
 	///
 	/// ```
 	/// use std::collections::HashMap;
+	/// use std::ops::Index;
+	/// use cc_traits::{EntryApi, Entry};
 	///
-	/// let mut map: HashMap<&str, String> = HashMap::new();
+	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=String> + Index<&'static str, Output=String> { HashMap::new() }
+	/// let mut map = make_map();
 	/// let s = "hoho".to_string();
 	///
 	/// map.entry("poneyland").or_insert_with(|| s);
@@ -96,8 +294,11 @@ where
 	///
 	/// ```
 	/// use std::collections::HashMap;
+	/// use std::ops::Index;
+	/// use cc_traits::{EntryApi, Entry};
 	///
-	/// let mut map: HashMap<&str, u32> = HashMap::new();
+	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=u32> + Index<&'static str, Output=u32> { HashMap::new() }
+	/// let mut map = make_map();
 	///
 	/// map.entry("poneyland")
 	///    .and_modify(|e| { *e += 1 })
@@ -135,8 +336,10 @@ where
 	///
 	/// ```
 	/// use std::collections::HashMap;
+	/// use cc_traits::{EntryApi, Entry};
 	///
-	/// let mut map: HashMap<&str, u32> = HashMap::new();
+	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=u32> { HashMap::new() }
+	/// let mut map = make_map();
 	/// assert_eq!(map.entry("poneyland").key(), &"poneyland");
 	/// ```
 	#[inline]
@@ -159,8 +362,11 @@ where
 	///
 	/// ```
 	/// use std::collections::HashMap;
+	/// use std::ops::Index;
+	/// use cc_traits::{EntryApi, Entry};
 	///
-	/// let mut map: HashMap<&str, usize> = HashMap::new();
+	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=usize> + Index<&'static str, Output=usize> { HashMap::new() }
+	/// let mut map = make_map();
 	///
 	/// map.entry("poneyland").or_insert_with_key(|key| key.chars().count());
 	///
@@ -191,8 +397,11 @@ where
 	/// ```
 	/// # fn main() {
 	/// use std::collections::HashMap;
+	/// use std::ops::Index;
+	/// use cc_traits::{EntryApi, Entry};
 	///
-	/// let mut map: HashMap<&str, Option<u32>> = HashMap::new();
+	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=Option<u32>> + Index<&'static str, Output=Option<u32>> { HashMap::new() }
+	/// let mut map = make_map();
 	/// map.entry("poneyland").or_default();
 	///
 	/// assert_eq!(map["poneyland"], None);
