@@ -1,8 +1,12 @@
 use crate::{
-	Clear, Collection, CollectionMut, CollectionRef, Get, GetKeyValue, GetMut, Iter, Keyed,
-	KeyedRef, Len, MapInsert, MapIter, MapIterMut, Remove,
+	Clear, Collection, CollectionMut, CollectionRef, Entry, EntryApi, Get, GetKeyValue, GetMut,
+	Iter, Keyed, KeyedRef, Len, MapInsert, MapIter, MapIterMut, OccupiedEntry, Remove, VacantEntry,
 };
-use std::{borrow::Borrow, collections::HashMap, hash::Hash};
+use std::{
+	borrow::Borrow,
+	collections::{hash_map, HashMap},
+	hash::Hash,
+};
 
 impl<K, V> Collection for HashMap<K, V> {
 	type Item = V;
@@ -144,5 +148,84 @@ impl<K, V> MapIterMut for HashMap<K, V> {
 	#[inline(always)]
 	fn iter_mut(&mut self) -> Self::IterMut<'_> {
 		self.iter_mut()
+	}
+}
+
+impl<'a, K, V> OccupiedEntry<'a> for hash_map::OccupiedEntry<'a, K, V> {
+	type K = K;
+	type V = V;
+
+	#[inline(always)]
+	fn key(&self) -> &Self::K {
+		hash_map::OccupiedEntry::key(self)
+	}
+
+	#[inline(always)]
+	fn remove_entry(self) -> (Self::K, Self::V) {
+		hash_map::OccupiedEntry::remove_entry(self)
+	}
+
+	#[inline(always)]
+	fn get(&self) -> &Self::V {
+		hash_map::OccupiedEntry::get(self)
+	}
+
+	#[inline(always)]
+	fn get_mut(&mut self) -> &mut Self::V {
+		hash_map::OccupiedEntry::get_mut(self)
+	}
+
+	#[inline(always)]
+	fn into_mut(self) -> &'a mut Self::V {
+		hash_map::OccupiedEntry::into_mut(self)
+	}
+
+	#[inline(always)]
+	fn insert(&mut self, value: Self::V) -> Self::V {
+		hash_map::OccupiedEntry::insert(self, value)
+	}
+
+	#[inline(always)]
+	fn remove(self) -> Self::V {
+		hash_map::OccupiedEntry::remove(self)
+	}
+}
+
+impl<'a, K, V> VacantEntry<'a> for hash_map::VacantEntry<'a, K, V> {
+	type K = K;
+	type V = V;
+
+	#[inline(always)]
+	fn key(&self) -> &Self::K {
+		hash_map::VacantEntry::key(self)
+	}
+
+	#[inline(always)]
+	fn into_key(self) -> Self::K {
+		hash_map::VacantEntry::into_key(self)
+	}
+
+	#[inline(always)]
+	fn insert(self, value: Self::V) -> &'a mut Self::V {
+		hash_map::VacantEntry::insert(self, value)
+	}
+}
+
+impl<K: Hash + Eq, V> EntryApi for HashMap<K, V> {
+	type Occ<'a>
+	where
+		Self: 'a
+	= hash_map::OccupiedEntry<'a, K, V>;
+	type Vac<'a>
+	where
+		Self: 'a
+	= hash_map::VacantEntry<'a, K, V>;
+
+	#[inline(always)]
+	fn entry(&mut self, key: Self::Key) -> Entry<Self::Occ<'_>, Self::Vac<'_>> {
+		match HashMap::entry(self, key) {
+			hash_map::Entry::Occupied(o) => Entry::Occupied(o),
+			hash_map::Entry::Vacant(v) => Entry::Vacant(v),
+		}
 	}
 }

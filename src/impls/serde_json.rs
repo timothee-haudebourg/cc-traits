@@ -1,6 +1,6 @@
 use crate::{
-	Clear, Collection, CollectionMut, CollectionRef, Get, GetKeyValue, GetMut, Keyed, KeyedRef,
-	Len, MapInsert, MapIter, MapIterMut, Remove,
+	Clear, Collection, CollectionMut, CollectionRef, Entry, EntryApi, Get, GetKeyValue, GetMut,
+	Keyed, KeyedRef, Len, MapInsert, MapIter, MapIterMut, OccupiedEntry, Remove, VacantEntry,
 };
 use std::{borrow::Borrow, cmp::Ord, hash::Hash};
 
@@ -118,5 +118,79 @@ impl Clear for serde_json::Map<String, serde_json::Value> {
 	#[inline(always)]
 	fn clear(&mut self) {
 		self.clear()
+	}
+}
+
+impl<'a> OccupiedEntry<'a> for serde_json::map::OccupiedEntry<'a> {
+	type K = String;
+	type V = serde_json::Value;
+
+	#[inline(always)]
+	fn key(&self) -> &Self::K {
+		serde_json::map::OccupiedEntry::key(self)
+	}
+
+	#[inline(always)]
+	fn remove_entry(self) -> (Self::K, Self::V) {
+		let key = self.key().clone();
+		(key, self.remove()) // serde::json doesn't implement remove_entry so we use this instead
+	}
+
+	#[inline(always)]
+	fn get(&self) -> &Self::V {
+		serde_json::map::OccupiedEntry::get(self)
+	}
+
+	#[inline(always)]
+	fn get_mut(&mut self) -> &mut Self::V {
+		serde_json::map::OccupiedEntry::get_mut(self)
+	}
+
+	#[inline(always)]
+	fn into_mut(self) -> &'a mut Self::V {
+		serde_json::map::OccupiedEntry::into_mut(self)
+	}
+
+	#[inline(always)]
+	fn insert(&mut self, value: Self::V) -> Self::V {
+		serde_json::map::OccupiedEntry::insert(self, value)
+	}
+
+	#[inline(always)]
+	fn remove(self) -> Self::V {
+		serde_json::map::OccupiedEntry::remove(self)
+	}
+}
+
+impl<'a> VacantEntry<'a> for serde_json::map::VacantEntry<'a> {
+	type K = String;
+	type V = serde_json::Value;
+
+	#[inline(always)]
+	fn key(&self) -> &Self::K {
+		serde_json::map::VacantEntry::key(self)
+	}
+
+	#[inline(always)]
+	fn into_key(self) -> Self::K {
+		self.key().clone() // serde::json doesn't implement into_key so we use this instead
+	}
+
+	#[inline(always)]
+	fn insert(self, value: Self::V) -> &'a mut Self::V {
+		serde_json::map::VacantEntry::insert(self, value)
+	}
+}
+
+impl EntryApi for serde_json::Map<String, serde_json::Value> {
+	type Occ<'a> = serde_json::map::OccupiedEntry<'a>;
+	type Vac<'a> = serde_json::map::VacantEntry<'a>;
+
+	#[inline(always)]
+	fn entry(&mut self, key: Self::Key) -> Entry<Self::Occ<'_>, Self::Vac<'_>> {
+		match serde_json::Map::entry(self, key) {
+			serde_json::map::Entry::Occupied(o) => Entry::Occupied(o),
+			serde_json::map::Entry::Vacant(v) => Entry::Vacant(v),
+		}
 	}
 }

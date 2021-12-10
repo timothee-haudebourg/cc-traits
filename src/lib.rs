@@ -109,6 +109,10 @@ mod macros;
 
 #[cfg(feature = "nightly")]
 mod alias;
+
+mod entry_api;
+pub use entry_api::*;
+
 #[cfg(feature = "nightly")]
 pub use alias::*;
 
@@ -317,6 +321,21 @@ pub trait MapInsert<K>: Collection {
 
 	/// Insert a new key-value pair in the collection.
 	fn insert(&mut self, key: K, value: Self::Item) -> Self::Output;
+}
+
+pub trait EntryApi: Keyed {
+	type Occ<'a>: OccupiedEntry<'a, K = Self::Key, V = Self::Item>
+	where
+		Self: 'a,
+		Self::Key: 'a,
+		Self::Item: 'a;
+	type Vac<'a>: VacantEntry<'a, K = Self::Key, V = Self::Item>
+	where
+		Self: 'a,
+		Self::Key: 'a,
+		Self::Item: 'a;
+
+	fn entry(&mut self, key: Self::Key) -> Entry<Self::Occ<'_>, Self::Vac<'_>>;
 }
 
 /// Mutable collection where new elements can be pushed on the front.
