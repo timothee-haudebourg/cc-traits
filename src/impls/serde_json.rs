@@ -4,35 +4,33 @@ use crate::{
 };
 use std::{borrow::Borrow, cmp::Ord, hash::Hash};
 
-use serde_json::{map as this_mod, Map as ThisMap};
-
-impl Collection for ThisMap<String, serde_json::Value> {
+impl Collection for serde_json::Map<String, serde_json::Value> {
 	type Item = serde_json::Value;
 }
 
-impl CollectionRef for ThisMap<String, serde_json::Value> {
+impl CollectionRef for serde_json::Map<String, serde_json::Value> {
 	type ItemRef<'a> = &'a serde_json::Value;
 
 	crate::covariant_item_ref!();
 }
 
-impl CollectionMut for ThisMap<String, serde_json::Value> {
+impl CollectionMut for serde_json::Map<String, serde_json::Value> {
 	type ItemMut<'a> = &'a mut serde_json::Value;
 
 	crate::covariant_item_mut!();
 }
 
-impl Keyed for ThisMap<String, serde_json::Value> {
+impl Keyed for serde_json::Map<String, serde_json::Value> {
 	type Key = String;
 }
 
-impl KeyedRef for ThisMap<String, serde_json::Value> {
+impl KeyedRef for serde_json::Map<String, serde_json::Value> {
 	type KeyRef<'a> = &'a String;
 
 	crate::covariant_key_ref!();
 }
 
-impl Len for ThisMap<String, serde_json::Value> {
+impl Len for serde_json::Map<String, serde_json::Value> {
 	#[inline(always)]
 	fn len(&self) -> usize {
 		self.len()
@@ -44,8 +42,8 @@ impl Len for ThisMap<String, serde_json::Value> {
 	}
 }
 
-impl MapIter for ThisMap<String, serde_json::Value> {
-	type Iter<'a> = this_mod::Iter<'a>;
+impl MapIter for serde_json::Map<String, serde_json::Value> {
+	type Iter<'a> = serde_json::map::Iter<'a>;
 
 	#[inline(always)]
 	fn iter(&self) -> Self::Iter<'_> {
@@ -53,8 +51,8 @@ impl MapIter for ThisMap<String, serde_json::Value> {
 	}
 }
 
-impl MapIterMut for ThisMap<String, serde_json::Value> {
-	type IterMut<'a> = this_mod::IterMut<'a>;
+impl MapIterMut for serde_json::Map<String, serde_json::Value> {
+	type IterMut<'a> = serde_json::map::IterMut<'a>;
 
 	#[inline(always)]
 	fn iter_mut(&mut self) -> Self::IterMut<'_> {
@@ -62,7 +60,7 @@ impl MapIterMut for ThisMap<String, serde_json::Value> {
 	}
 }
 
-impl<'a, Q: ?Sized> Get<&'a Q> for ThisMap<String, serde_json::Value>
+impl<'a, Q: ?Sized> Get<&'a Q> for serde_json::Map<String, serde_json::Value>
 where
 	String: Borrow<Q>,
 	Q: Ord + Hash,
@@ -73,7 +71,7 @@ where
 	}
 }
 
-impl<'a, Q: ?Sized> GetMut<&'a Q> for ThisMap<String, serde_json::Value>
+impl<'a, Q: ?Sized> GetMut<&'a Q> for serde_json::Map<String, serde_json::Value>
 where
 	String: Borrow<Q>,
 	Q: Ord + Hash,
@@ -84,7 +82,7 @@ where
 	}
 }
 
-impl<'a, Q: ?Sized> GetKeyValue<&'a Q> for ThisMap<String, serde_json::Value>
+impl<'a, Q: ?Sized> GetKeyValue<&'a Q> for serde_json::Map<String, serde_json::Value>
 where
 	String: Borrow<Q>,
 	Q: Ord + Hash,
@@ -96,7 +94,7 @@ where
 	}
 }
 
-impl MapInsert<String> for ThisMap<String, serde_json::Value> {
+impl MapInsert<String> for serde_json::Map<String, serde_json::Value> {
 	type Output = Option<serde_json::Value>;
 
 	#[inline(always)]
@@ -105,7 +103,7 @@ impl MapInsert<String> for ThisMap<String, serde_json::Value> {
 	}
 }
 
-impl<'a, Q: ?Sized> Remove<&'a Q> for ThisMap<String, serde_json::Value>
+impl<'a, Q: ?Sized> Remove<&'a Q> for serde_json::Map<String, serde_json::Value>
 where
 	String: Borrow<Q>,
 	Q: Ord + Hash,
@@ -116,20 +114,20 @@ where
 	}
 }
 
-impl Clear for ThisMap<String, serde_json::Value> {
+impl Clear for serde_json::Map<String, serde_json::Value> {
 	#[inline(always)]
 	fn clear(&mut self) {
 		self.clear()
 	}
 }
 
-impl<'a> OccupiedEntry<'a> for this_mod::OccupiedEntry<'a> {
+impl<'a> OccupiedEntry<'a> for serde_json::map::OccupiedEntry<'a> {
 	type K = String;
 	type V = serde_json::Value;
 
 	#[inline(always)]
 	fn key(&self) -> &Self::K {
-		this_mod::OccupiedEntry::key(self)
+		serde_json::map::OccupiedEntry::key(self)
 	}
 
 	#[inline(always)]
@@ -140,37 +138,37 @@ impl<'a> OccupiedEntry<'a> for this_mod::OccupiedEntry<'a> {
 
 	#[inline(always)]
 	fn get(&self) -> &Self::V {
-		this_mod::OccupiedEntry::get(self)
+		serde_json::map::OccupiedEntry::get(self)
 	}
 
 	#[inline(always)]
 	fn get_mut(&mut self) -> &mut Self::V {
-		this_mod::OccupiedEntry::get_mut(self)
+		serde_json::map::OccupiedEntry::get_mut(self)
 	}
 
 	#[inline(always)]
 	fn into_mut(self) -> &'a mut Self::V {
-		this_mod::OccupiedEntry::into_mut(self)
+		serde_json::map::OccupiedEntry::into_mut(self)
 	}
 
 	#[inline(always)]
 	fn insert(&mut self, value: Self::V) -> Self::V {
-		this_mod::OccupiedEntry::insert(self, value)
+		serde_json::map::OccupiedEntry::insert(self, value)
 	}
 
 	#[inline(always)]
 	fn remove(self) -> Self::V {
-		this_mod::OccupiedEntry::remove(self)
+		serde_json::map::OccupiedEntry::remove(self)
 	}
 }
 
-impl<'a> VacantEntry<'a> for this_mod::VacantEntry<'a> {
+impl<'a> VacantEntry<'a> for serde_json::map::VacantEntry<'a> {
 	type K = String;
 	type V = serde_json::Value;
 
 	#[inline(always)]
 	fn key(&self) -> &Self::K {
-		this_mod::VacantEntry::key(self)
+		serde_json::map::VacantEntry::key(self)
 	}
 
 	#[inline(always)]
@@ -180,19 +178,19 @@ impl<'a> VacantEntry<'a> for this_mod::VacantEntry<'a> {
 
 	#[inline(always)]
 	fn insert(self, value: Self::V) -> &'a mut Self::V {
-		this_mod::VacantEntry::insert(self, value)
+		serde_json::map::VacantEntry::insert(self, value)
 	}
 }
 
-impl EntryApi for ThisMap<String, serde_json::Value> {
-	type Occ<'a> = this_mod::OccupiedEntry<'a>;
-	type Vac<'a> = this_mod::VacantEntry<'a>;
+impl EntryApi for serde_json::Map<String, serde_json::Value> {
+	type Occ<'a> = serde_json::map::OccupiedEntry<'a>;
+	type Vac<'a> = serde_json::map::VacantEntry<'a>;
 
 	#[inline(always)]
 	fn entry(&mut self, key: Self::Key) -> Entry<Self::Occ<'_>, Self::Vac<'_>> {
-		match ThisMap::entry(self, key) {
-			this_mod::Entry::Occupied(o) => Entry::Occupied(o),
-			this_mod::Entry::Vacant(v) => Entry::Vacant(v),
+		match serde_json::Map::entry(self, key) {
+			serde_json::map::Entry::Occupied(o) => Entry::Occupied(o),
+			serde_json::map::Entry::Vacant(v) => Entry::Vacant(v),
 		}
 	}
 }
