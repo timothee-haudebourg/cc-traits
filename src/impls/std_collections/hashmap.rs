@@ -5,14 +5,14 @@ use crate::{
 use std::{
 	borrow::Borrow,
 	collections::{hash_map, HashMap},
-	hash::Hash,
+	hash::{BuildHasher, Hash},
 };
 
-impl<K, V> Collection for HashMap<K, V> {
+impl<K, V, S: BuildHasher> Collection for HashMap<K, V, S> {
 	type Item = V;
 }
 
-impl<K, V> CollectionRef for HashMap<K, V> {
+impl<K, V, S: BuildHasher> CollectionRef for HashMap<K, V, S> {
 	type ItemRef<'a>
 	where
 		Self: 'a,
@@ -21,7 +21,7 @@ impl<K, V> CollectionRef for HashMap<K, V> {
 	crate::covariant_item_ref!();
 }
 
-impl<K, V> CollectionMut for HashMap<K, V> {
+impl<K, V, S: BuildHasher> CollectionMut for HashMap<K, V, S> {
 	type ItemMut<'a>
 	where
 		Self: 'a,
@@ -30,11 +30,11 @@ impl<K, V> CollectionMut for HashMap<K, V> {
 	crate::covariant_item_mut!();
 }
 
-impl<K, V> Keyed for HashMap<K, V> {
+impl<K, V, S: BuildHasher> Keyed for HashMap<K, V, S> {
 	type Key = K;
 }
 
-impl<K, V> KeyedRef for HashMap<K, V> {
+impl<K, V, S: BuildHasher> KeyedRef for HashMap<K, V, S> {
 	type KeyRef<'a>
 	where
 		Self: 'a,
@@ -43,7 +43,7 @@ impl<K, V> KeyedRef for HashMap<K, V> {
 	crate::covariant_key_ref!();
 }
 
-impl<K, V> Len for HashMap<K, V> {
+impl<K, V, S: BuildHasher> Len for HashMap<K, V, S> {
 	#[inline(always)]
 	fn len(&self) -> usize {
 		self.len()
@@ -55,7 +55,7 @@ impl<K, V> Len for HashMap<K, V> {
 	}
 }
 
-impl<'a, Q, K: Hash + Eq, V> Get<&'a Q> for HashMap<K, V>
+impl<'a, Q, K: Hash + Eq, V, S: BuildHasher> Get<&'a Q> for HashMap<K, V, S>
 where
 	K: Borrow<Q>,
 	Q: Hash + Eq + ?Sized,
@@ -66,7 +66,7 @@ where
 	}
 }
 
-impl<'a, Q, K: Hash + Eq, V> GetMut<&'a Q> for HashMap<K, V>
+impl<'a, Q, K: Hash + Eq, V, S: BuildHasher> GetMut<&'a Q> for HashMap<K, V, S>
 where
 	K: Borrow<Q>,
 	Q: Hash + Eq + ?Sized,
@@ -77,7 +77,7 @@ where
 	}
 }
 
-impl<'a, Q, K: Hash + Eq, V> GetKeyValue<&'a Q> for HashMap<K, V>
+impl<'a, Q, K: Hash + Eq, V, S: BuildHasher> GetKeyValue<&'a Q> for HashMap<K, V, S>
 where
 	K: Borrow<Q>,
 	Q: Hash + Eq + ?Sized,
@@ -88,7 +88,7 @@ where
 	}
 }
 
-impl<K: Hash + Eq, V> MapInsert<K> for HashMap<K, V> {
+impl<K: Hash + Eq, V, S: BuildHasher> MapInsert<K> for HashMap<K, V, S> {
 	type Output = Option<V>;
 
 	#[inline(always)]
@@ -97,7 +97,7 @@ impl<K: Hash + Eq, V> MapInsert<K> for HashMap<K, V> {
 	}
 }
 
-impl<'a, Q, K: Hash + Eq, V> Remove<&'a Q> for HashMap<K, V>
+impl<'a, Q, K: Hash + Eq, V, S: BuildHasher> Remove<&'a Q> for HashMap<K, V, S>
 where
 	K: Borrow<Q>,
 	Q: Hash + Eq + ?Sized,
@@ -108,14 +108,14 @@ where
 	}
 }
 
-impl<K, V> Clear for HashMap<K, V> {
+impl<K, V, S: BuildHasher> Clear for HashMap<K, V, S> {
 	#[inline(always)]
 	fn clear(&mut self) {
 		self.clear()
 	}
 }
 
-impl<K, V> Iter for HashMap<K, V> {
+impl<K, V, S: BuildHasher> Iter for HashMap<K, V, S> {
 	type Iter<'a>
 	where
 		Self: 'a,
@@ -127,7 +127,7 @@ impl<K, V> Iter for HashMap<K, V> {
 	}
 }
 
-impl<K, V> MapIter for HashMap<K, V> {
+impl<K, V, S: BuildHasher> MapIter for HashMap<K, V, S> {
 	type Iter<'a>
 	where
 		Self: 'a,
@@ -139,7 +139,7 @@ impl<K, V> MapIter for HashMap<K, V> {
 	}
 }
 
-impl<K, V> MapIterMut for HashMap<K, V> {
+impl<K, V, S: BuildHasher> MapIterMut for HashMap<K, V, S> {
 	type IterMut<'a>
 	where
 		Self: 'a,
@@ -211,14 +211,14 @@ impl<'a, K, V> VacantEntry<'a> for hash_map::VacantEntry<'a, K, V> {
 	}
 }
 
-impl<K: Hash + Eq, V> EntryApi for HashMap<K, V> {
+impl<K: Hash + Eq, V, S: BuildHasher> EntryApi for HashMap<K, V, S> {
 	type Occ<'a>
 	where
-		Self: 'a
+		Self: 'a,
 	= hash_map::OccupiedEntry<'a, K, V>;
 	type Vac<'a>
 	where
-		Self: 'a
+		Self: 'a,
 	= hash_map::VacantEntry<'a, K, V>;
 
 	#[inline(always)]
