@@ -103,7 +103,7 @@
 //!   - [`ijson`](https://crates.io/crates/ijson) providing the `IObject` and `IArray` collections.
 #![feature(generic_associated_types)]
 #![cfg_attr(feature = "nightly", feature(trait_alias))]
-#![cfg_attr(feature = "raw-api", feature(hash_raw_entry))]
+#![cfg_attr(feature = "raw_entry", feature(hash_raw_entry))]
 
 mod impls;
 mod macros;
@@ -111,8 +111,8 @@ mod macros;
 #[cfg(feature = "nightly")]
 mod alias;
 
-mod entry_api;
-pub use entry_api::*;
+pub mod entry_api;
+use entry_api::*;
 
 #[cfg(feature = "nightly")]
 pub use alias::*;
@@ -346,7 +346,7 @@ pub trait EntryApi: Keyed {
 	/// ```
 	/// use std::collections::HashMap;
 	/// use std::ops::Index;
-	/// use cc_traits::{EntryApi, Entry, Get};
+	/// use cc_traits::{EntryApi, entry_api::*, Get};
 	///
 	/// fn make_map() -> impl EntryApi<Key=char,Item=u32> + Index<&'static char, Output=u32> + Get<&'static char> { HashMap::new() }
 	/// let mut letters = make_map();
@@ -364,8 +364,8 @@ pub trait EntryApi: Keyed {
 	fn entry(&mut self, key: Self::Key) -> Entry<Self::Occ<'_>, Self::Vac<'_>>;
 }
 
-#[cfg(feature = "raw-api")]
-pub trait EntryRefApi<Q: ToOwned<Owned = Self::Key>>: Keyed {
+
+pub trait EntryRefApi<Q: ToOwned<Owned = Self::Key> + ?Sized>: Keyed {
 	type Occ<'a>: OccupiedEntry<'a, K = Self::Key, V = Self::Item>
 	where
 		Self: 'a,
@@ -383,13 +383,13 @@ pub trait EntryRefApi<Q: ToOwned<Owned = Self::Key>>: Keyed {
 	/// ```
 	/// use std::collections::HashMap;
 	/// use std::ops::Index;
-	/// use cc_traits::{EntryRefApi, Entry, Get};
+	/// use cc_traits::{EntryRefApi, entry_api::*, Get};
 	///
-	/// fn make_map() -> impl EntryRefApi<&'static str, Key=String,Item=u32> + Index<&'static str, Output=u32> + Get<&'static str> { HashMap::new() }
+	/// fn make_map() -> impl EntryRefApi<str, Key=String,Item=u32> + Index<&'static str, Output=u32> + Get<&'static str> { HashMap::new() }
 	/// let mut words = make_map();
 	///
 	/// for s in "foo bar bar".split(' ') {
-	///     let counter = letters.entry_ref(s).or_insert(0);
+	///     let counter = words.entry_ref(s).or_insert(0);
 	///     *counter += 1;
 	/// }
 	///
@@ -397,6 +397,18 @@ pub trait EntryRefApi<Q: ToOwned<Owned = Self::Key>>: Keyed {
 	/// assert_eq!(words["foo"], 1);
 	/// assert!(!words.contains_key("baz"));
 	/// ```
+	///
+	/// ```compile_fail
+	/// use std::collections::HashMap;
+	/// use cc_traits::{EntryRefApi, entry_api::*};
+	///
+	/// fn make_map() -> impl EntryRefApi<String, Key=String, Item=String>{ HashMap::new() }
+	///
+	/// let mut test = make_map();
+	/// let s = "hello world".to_string();
+	/// test.entry_ref(&s).or_insert(s); // the reference to s is still required so it can't be moved to insert
+	/// ```
+	/// Note: implementing this trait for hash map requires the `raw_entry` feature since it makes use of the `hash_raw_entry` nightly feature
 	fn entry_ref<'a, 'b: 'a>(&'a mut self, key: &'b Q) -> Entry<Self::Occ<'a>, Self::Vac<'a, 'b>>;
 }
 

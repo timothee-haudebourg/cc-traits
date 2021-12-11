@@ -1,7 +1,4 @@
-use crate::{
-	Clear, Collection, CollectionMut, CollectionRef, Entry, EntryApi, Get, GetKeyValue, GetMut,
-	Keyed, KeyedRef, Len, MapInsert, MapIter, MapIterMut, OccupiedEntry, Remove, VacantEntry,
-};
+use crate::{Clear, Collection, CollectionMut, CollectionRef, Entry, EntryApi, Get, GetKeyValue, GetMut, Keyed, KeyedRef, KeyVacantEntry, Len, MapInsert, MapIter, MapIterMut, OccupiedEntry, Remove, VacantEntry};
 use std::{borrow::Borrow, cmp::Ord, hash::Hash};
 
 impl Collection for serde_json::Map<String, serde_json::Value> {
@@ -167,6 +164,13 @@ impl<'a> VacantEntry<'a> for serde_json::map::VacantEntry<'a> {
 	type V = serde_json::Value;
 
 	#[inline(always)]
+	fn insert(self, value: Self::V) -> &'a mut Self::V {
+		serde_json::map::VacantEntry::insert(self, value)
+	}
+}
+
+impl<'a> KeyVacantEntry<'a> for serde_json::map::VacantEntry<'a> {
+	#[inline(always)]
 	fn key(&self) -> &Self::K {
 		serde_json::map::VacantEntry::key(self)
 	}
@@ -174,11 +178,6 @@ impl<'a> VacantEntry<'a> for serde_json::map::VacantEntry<'a> {
 	#[inline(always)]
 	fn into_key(self) -> Self::K {
 		self.key().clone() // serde::json doesn't implement into_key so we use this instead
-	}
-
-	#[inline(always)]
-	fn insert(self, value: Self::V) -> &'a mut Self::V {
-		serde_json::map::VacantEntry::insert(self, value)
 	}
 }
 

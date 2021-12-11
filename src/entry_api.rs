@@ -9,7 +9,7 @@ pub trait OccupiedEntry<'a>: Sized {
 	///
 	/// ```
 	///use std::collections::HashMap;
-	///use cc_traits::{EntryApi, Entry};
+	///use cc_traits::{EntryApi, entry_api::*};
 	///
 	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=i32> { HashMap::new() }
 	/// let mut map = make_map();
@@ -24,7 +24,7 @@ pub trait OccupiedEntry<'a>: Sized {
 	///
 	/// ```
 	/// use std::collections::HashMap;
-	/// use cc_traits::{EntryApi, Entry, OccupiedEntry, Get};
+	/// use cc_traits::{EntryApi, entry_api::*, Get};
 	///
 	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=i32> + Get<&'static str> { HashMap::new() }
 	/// let mut map = make_map();
@@ -45,7 +45,7 @@ pub trait OccupiedEntry<'a>: Sized {
 	///
 	/// ```
 	/// use std::collections::HashMap;
-	/// use cc_traits::{EntryApi, Entry, OccupiedEntry};
+	/// use cc_traits::{EntryApi, entry_api::*};
 	///
 	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=i32> { HashMap::new() }
 	/// let mut map = make_map();
@@ -69,7 +69,7 @@ pub trait OccupiedEntry<'a>: Sized {
 	/// ```
 	/// use std::collections::HashMap;
 	/// use std::ops::Index;
-	/// use cc_traits::{EntryApi, Entry, OccupiedEntry};
+	/// use cc_traits::{EntryApi, entry_api::*};
 	///
 	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=i32> + Index<&'static str, Output=i32> { HashMap::new() }
 	/// let mut map = make_map();
@@ -100,7 +100,7 @@ pub trait OccupiedEntry<'a>: Sized {
 	/// ```
 	/// use std::collections::HashMap;
 	/// use std::ops::Index;
-	/// use cc_traits::{EntryApi, Entry, OccupiedEntry};
+	/// use cc_traits::{EntryApi, entry_api::*};
 	///
 	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=i32> + Index<&'static str, Output=i32>{ HashMap::new() }
 	/// let mut map = make_map();
@@ -122,7 +122,7 @@ pub trait OccupiedEntry<'a>: Sized {
 	/// ```
 	/// use std::collections::HashMap;
 	/// use std::ops::Index;
-	/// use cc_traits::{EntryApi, Entry, OccupiedEntry};
+	/// use cc_traits::{EntryApi, entry_api::*};
 	///
 	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=i32> + Index<&'static str, Output=i32> { HashMap::new() }
 	/// let mut map = make_map();
@@ -142,7 +142,7 @@ pub trait OccupiedEntry<'a>: Sized {
 	///
 	/// ```
 	/// use std::collections::HashMap;
-	/// use cc_traits::{EntryApi, Entry, OccupiedEntry, Get};
+	/// use cc_traits::{EntryApi, entry_api::*, Get};
 	///
 	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=i32> + Get<&'static str> { HashMap::new() }
 	/// let mut map = make_map();
@@ -161,6 +161,7 @@ pub trait OccupiedEntry<'a>: Sized {
 
 /// A view into a vacant entry.
 /// It is part of the [`Entry`] enum.
+/// See also [`KeyVacantEntry`] for entries that own there key
 pub trait VacantEntry<'a>: Sized {
 	type K;
 	type V;
@@ -172,7 +173,7 @@ pub trait VacantEntry<'a>: Sized {
 	/// ```
 	/// use std::collections::HashMap;
 	/// use std::ops::Index;
-	/// use cc_traits::{EntryApi, Entry, VacantEntry};
+	/// use cc_traits::{EntryApi, entry_api::*};
 	///
 	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=i32> + Index<&'static str, Output=i32> { HashMap::new() }
 	/// let mut map = make_map();
@@ -193,7 +194,7 @@ pub trait KeyVacantEntry<'a>: VacantEntry<'a> {
 	///
 	/// ```
 	/// use std::collections::HashMap;
-	/// use cc_traits::{EntryApi, Entry, KeyVacantEntry};
+	/// use cc_traits::{EntryApi, entry_api::*};
 	///
 	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=i32> { HashMap::new() }
 	/// let mut map = make_map();
@@ -207,7 +208,7 @@ pub trait KeyVacantEntry<'a>: VacantEntry<'a> {
 	///
 	/// ```
 	/// use std::collections::HashMap;
-	/// use cc_traits::{EntryApi, Entry, KeyVacantEntry};
+	/// use cc_traits::{EntryApi, entry_api::*};
 	///
 	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=i32> { HashMap::new() }
 	/// let mut map = make_map();
@@ -219,6 +220,24 @@ pub trait KeyVacantEntry<'a>: VacantEntry<'a> {
 	fn into_key(self) -> Self::K;
 }
 
+
+///A view into a single entry in a map, which may either be vacant or occupied.
+///
+/// This enum is constructed from the entry method on [`EntryApi`][`crate::EntryApi`] implementors,
+/// as well as the entry_ref method of [`EntryRefApi`][`crate::EntryRefApi`] implementors.
+///
+/// Note: while this enum is distinct from Entry enums defined for different map types,
+/// (eg. [`std::collections::hash_map::Entry`])
+/// it supports the same functionality and has the same variant elements
+/// ```
+/// use cc_traits::{EntryApi, entry_api::*};
+/// use std::collections::hash_map::{HashMap, VacantEntry as HashMapVacantEntry};
+///
+/// let mut x: HashMap<&'static str, ()> = HashMap::new();
+/// if let Entry::Vacant(y) =  EntryApi::entry(&mut x, "test") {
+/// 	let z: HashMapVacantEntry<_,_> = y;
+/// }
+/// ```
 pub enum Entry<Occ, Vac> {
 	/// An occupied entry.
 	Occupied(Occ),
@@ -242,7 +261,7 @@ where
 	/// ```
 	/// use std::collections::HashMap;
 	/// use std::ops::Index;
-	/// use cc_traits::{EntryApi, Entry};
+	/// use cc_traits::{EntryApi, entry_api::*};
 	///
 	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=u32> + Index<&'static str, Output=u32> { HashMap::new() }
 	/// let mut map = make_map();
@@ -269,7 +288,7 @@ where
 	/// ```
 	/// use std::collections::HashMap;
 	/// use std::ops::Index;
-	/// use cc_traits::{EntryApi, Entry};
+	/// use cc_traits::{EntryApi};
 	///
 	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=String> + Index<&'static str, Output=String> { HashMap::new() }
 	/// let mut map = make_map();
@@ -295,7 +314,7 @@ where
 	/// ```
 	/// use std::collections::HashMap;
 	/// use std::ops::Index;
-	/// use cc_traits::{EntryApi, Entry};
+	/// use cc_traits::{EntryApi};
 	///
 	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=u32> + Index<&'static str, Output=u32> { HashMap::new() }
 	/// let mut map = make_map();
@@ -336,7 +355,7 @@ where
 	///
 	/// ```
 	/// use std::collections::HashMap;
-	/// use cc_traits::{EntryApi, Entry};
+	/// use cc_traits::{EntryApi};
 	///
 	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=u32> { HashMap::new() }
 	/// let mut map = make_map();
@@ -363,7 +382,7 @@ where
 	/// ```
 	/// use std::collections::HashMap;
 	/// use std::ops::Index;
-	/// use cc_traits::{EntryApi, Entry};
+	/// use cc_traits::{EntryApi};
 	///
 	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=usize> + Index<&'static str, Output=usize> { HashMap::new() }
 	/// let mut map = make_map();
@@ -398,7 +417,7 @@ where
 	/// # fn main() {
 	/// use std::collections::HashMap;
 	/// use std::ops::Index;
-	/// use cc_traits::{EntryApi, Entry};
+	/// use cc_traits::{EntryApi};
 	///
 	/// fn make_map() -> impl EntryApi<Key=&'static str,Item=Option<u32>> + Index<&'static str, Output=Option<u32>> { HashMap::new() }
 	/// let mut map = make_map();
@@ -429,13 +448,13 @@ where
 	}
 }
 
-#[cfg(feature = "raw-api")]
-pub struct RefOccupiedEntry<'a, Occ: OccupiedEntry<'a>>(pub(crate) Occ);
+#[cfg(feature = "raw_entry")]
+pub struct RefOccupiedEntry<Occ>(pub(crate) Occ);
 
-#[cfg(feature = "raw-api")]
-impl<'a, Occ: OccupiedEntry<'a>> OccupiedEntry<'a> for RefOccupiedEntry<'a, Occ> {
-	type K = K;
-	type V = V;
+#[cfg(feature = "raw_entry")]
+impl<'a, Occ: OccupiedEntry<'a>> OccupiedEntry<'a> for RefOccupiedEntry<Occ> {
+	type K = Occ::K;
+	type V = Occ::V;
 
 	fn key(&self) -> &Self::K {
 		self.0.key()
@@ -458,7 +477,7 @@ impl<'a, Occ: OccupiedEntry<'a>> OccupiedEntry<'a> for RefOccupiedEntry<'a, Occ>
 	}
 
 	fn insert(&mut self, value: Self::V) -> Self::V {
-		self.0.insert()
+		self.0.insert(value)
 	}
 
 	fn remove(self) -> Self::V {
@@ -466,9 +485,10 @@ impl<'a, Occ: OccupiedEntry<'a>> OccupiedEntry<'a> for RefOccupiedEntry<'a, Occ>
 	}
 }
 
-#[cfg(feature = "raw-api")]
-impl<'a, Occ: OccupiedEntry> Debug for RefOccupiedEntry<'a, Occ> {
-	fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+#[cfg(feature = "raw_entry")]
+impl<'a, Occ: OccupiedEntry<'a>> Debug for RefOccupiedEntry<Occ>
+where Occ::K: Debug, Occ::V: Debug {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		f.debug_struct("RefOccupiedEntry")
 			.field("key", self.key())
 			.field("value", self.get())
@@ -476,40 +496,36 @@ impl<'a, Occ: OccupiedEntry> Debug for RefOccupiedEntry<'a, Occ> {
 	}
 }
 
-#[cfg(feature = "raw-api")]
+#[cfg(feature = "raw_entry")]
 pub trait RawVacantEntry<'a>: Sized {
-	type K;
-	type V;
+	type K: 'a;
+	type V: 'a;
 	fn insert(self, key: Self::K, value: Self::V) -> (&'a mut Self::K, &'a mut Self::V);
 }
 
-#[cfg(feature = "raw-api")]
-pub struct RefVacantEntry<'a, 'b: 'a, Q: ToOwned<Owned = Vac::K>, Vac: RawVacantEntry<'a>> {
-	pub(crate) key: &'b Q,
+#[cfg(feature = "raw_entry")]
+pub struct RefVacantEntry<Q, Vac> {
+	pub(crate) key: Q,
 	pub(crate) raw: Vac,
 }
 
-#[cfg(feature = "raw-api")]
-impl<'a, 'b: 'a, Q: ToOwned<Owned = Vac::K>, Vac: RawVacantEntry> VacantEntry<'a>
-	for RefVacantEntry<'a, 'b, Q, Vac>
+#[cfg(feature = "raw_entry")]
+impl<'a, 'b: 'a, Q: ToOwned<Owned = Vac::K> + ?Sized, Vac: RawVacantEntry<'a>> VacantEntry<'a>
+	for RefVacantEntry<&'b Q, Vac>
 {
 	type K = Vac::K;
 	type V = Vac::V;
-
-	fn into_key(self) -> Self::K {
-		self.key.to_owned()
-	}
 
 	fn insert(self, value: Self::V) -> &'a mut Self::V {
 		self.raw.insert(self.key.to_owned(), value).1
 	}
 }
 
-#[cfg(feature = "raw-api")]
-impl<'a, 'b: 'a, Q: ToOwned<Owned = Vac::K>, Vac: RawVacantEntry> Debug
-	for RefVacantEntry<'a, 'b, Q, Vac>
+#[cfg(feature = "raw_entry")]
+impl<'a, 'b: 'a, Q: ToOwned<Owned = Vac::K> + Debug, Vac: RawVacantEntry<'a>> Debug
+	for RefVacantEntry<&'b Q, Vac>
 {
-	fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		f.debug_struct("RefVacantEntry")
 			.field("key", self.key)
 			.finish_non_exhaustive()

@@ -1,3 +1,4 @@
+use std::collections::vec_deque::VecDeque;
 use cc_traits::{Back, Collection, PushBack};
 
 /// Ordered stack.
@@ -46,7 +47,6 @@ fn main() {
 	assert!(vec.try_push(2).is_ok());
 	assert!(vec.try_push(0).is_err());
 
-	use std::collections::VecDeque;
 	let mut deque: Ordered<VecDeque<i32>> = Ordered::new(); // a `VecDeque` is also a stack.
 
 	assert!(deque.try_push(1).is_ok());

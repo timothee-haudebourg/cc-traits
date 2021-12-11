@@ -232,7 +232,7 @@ impl<K: Hash + Eq, V, S: BuildHasher> EntryApi for HashMap<K, V, S> {
 	}
 }
 
-#[cfg(feature = "raw-api")]
+#[cfg(feature = "raw_entry")]
 impl<'a, K, V, S: BuildHasher> OccupiedEntry<'a> for hash_map::RawOccupiedEntryMut<'a, K, V, S> {
 	type K = K;
 	type V = V;
@@ -273,33 +273,37 @@ impl<'a, K, V, S: BuildHasher> OccupiedEntry<'a> for hash_map::RawOccupiedEntryM
 	}
 }
 
-#[cfg(feature = "raw-api")]
-impl<'a, K, V, S: BuildHasher> crate::RawVacantEntry<'a>
-	for hash_map::RawOccupiedEntryMut<'a, K, V, S>
+#[cfg(feature = "raw_entry")]
+impl<'a, K: Hash + Eq, V, S: BuildHasher> crate::RawVacantEntry<'a>
+	for hash_map::RawVacantEntryMut<'a, K, V, S>
 {
 	type K = K;
 	type V = V;
 
 	fn insert(self, key: Self::K, value: Self::V) -> (&'a mut Self::K, &'a mut Self::V) {
-		hash_map::RawOccupiedEntryMut::insert(self, key, value)
+		hash_map::RawVacantEntryMut::insert(self, key, value)
 	}
 }
 
-#[cfg(feature = "raw-api")]
-impl<Q: Hash + Eq + ToOwned<Owned = K>, K: Hash + Eq, V, S: BuildHasher> crate::EntryRefApi<Q>
+#[cfg(feature = "raw_entry")]
+impl<Q: Hash + Eq + ToOwned<Owned = K> + ?Sized, K: Hash + Eq, V, S: BuildHasher> crate::EntryRefApi<Q>
 	for HashMap<K, V, S>
+	where K: Borrow<Q>
 {
 	type Occ<'a>
 	where
-		Self: 'a,
-	= crate::RefOccupiedEntry<'a, hash_map::RawOccupiedEntryMut<'a, K, V, S>>;
+		Self: 'a, Q: 'a
+	= crate::RefOccupiedEntry<hash_map::RawOccupiedEntryMut<'a, K, V, S>>;
 	type Vac<'a, 'b>
 	where
 		Self: 'a,
-	= crate::RefVacantEntry<'a, 'b, Q, hash_map::RawVacantEntryMut<'a, K, V, S>>;
+		Q: 'b,
+		'b: 'a,
+		'a: 'b,
+	= crate::RefVacantEntry<&'b Q, hash_map::RawVacantEntryMut<'a, K, V, S>>;
 
 	fn entry_ref<'a, 'b: 'a>(&'a mut self, key: &'b Q) -> Entry<Self::Occ<'a>, Self::Vac<'a, 'b>> {
-		let mut raw = self.raw_entry_mut();
+		let raw = self.raw_entry_mut();
 		match raw.from_key(key) {
 			hash_map::RawEntryMut::Occupied(occ) => Entry::Occupied(crate::RefOccupiedEntry(occ)),
 			hash_map::RawEntryMut::Vacant(vac) => {
