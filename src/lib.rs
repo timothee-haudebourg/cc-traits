@@ -228,6 +228,17 @@ pub trait Get<T>: CollectionRef {
 	}
 
 	/// Checks if the collection contains an item behind the given key.
+	/// Warning having [`Get`] in scope will alter the behaviour of calling `contains` on a vector
+	/// ```compile_fail
+	/// use cc_traits::Get;
+	/// let vec = vec![5];
+	/// assert!(vec.contains(&5)); // uses Get::contains
+	/// ```
+	/// ```
+	/// use cc_traits::Get;
+	/// let vec = vec![5];
+	/// assert!(!vec.contains(5)); // this returns false since vec.get(5) is None
+	/// ```
 	#[deprecated = "use `contains_key`"]
 	fn contains(&self, key: T) -> bool {
 		self.get(key).is_some()
