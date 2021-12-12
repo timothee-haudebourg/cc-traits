@@ -103,12 +103,17 @@
 //!   - [`ijson`](https://crates.io/crates/ijson) providing the `IObject` and `IArray` collections.
 #![feature(generic_associated_types)]
 #![cfg_attr(feature = "nightly", feature(trait_alias))]
+#![cfg_attr(feature = "raw_entry", feature(hash_raw_entry))]
 
 mod impls;
 mod macros;
 
 #[cfg(feature = "nightly")]
 mod alias;
+
+pub mod entry_api;
+use entry_api::*;
+
 #[cfg(feature = "nightly")]
 pub use alias::*;
 
@@ -218,6 +223,23 @@ pub trait Get<T>: CollectionRef {
 	fn get(&self, key: T) -> Option<Self::ItemRef<'_>>;
 
 	/// Checks if the collection contains an item behind the given key.
+	fn contains_key(&self, key: T) -> bool {
+		self.get(key).is_some()
+	}
+
+	/// Checks if the collection contains an item behind the given key.
+	/// Warning having [`Get`] in scope will alter the behaviour of calling `contains` on a vector
+	/// ```compile_fail
+	/// use cc_traits::Get;
+	/// let vec = vec![5];
+	/// assert!(vec.contains(&5)); // uses Get::contains
+	/// ```
+	/// ```
+	/// use cc_traits::Get;
+	/// let vec = vec![5];
+	/// assert!(!vec.contains(5)); // this returns false since vec.get(5) is None
+	/// ```
+	#[deprecated = "use `contains_key`"]
 	fn contains(&self, key: T) -> bool {
 		self.get(key).is_some()
 	}
@@ -317,6 +339,88 @@ pub trait MapInsert<K>: Collection {
 
 	/// Insert a new key-value pair in the collection.
 	fn insert(&mut self, key: K, value: Self::Item) -> Self::Output;
+}
+
+/// Mutable map that supports the entry api
+pub trait EntryApi: Keyed {
+	type Occ<'a>: OccupiedEntry<'a, K = Self::Key, V = Self::Item>
+	where
+		Self: 'a;
+	type Vac<'a>: KeyVacantEntry<'a, K = Self::Key, V = Self::Item>
+	where
+		Self: 'a;
+
+	/// Gets the given key's corresponding entry in the map for in-place manipulation.
+	///
+	/// # Examples
+	///
+	/// ```
+	/// use std::collections::HashMap;
+	/// use std::ops::Index;
+	/// use cc_traits::{EntryApi, entry_api::*, Get};
+	///
+	/// fn make_map() -> impl EntryApi<Key=char,Item=u32> + Index<&'static char, Output=u32> + Get<&'static char> { HashMap::new() }
+	/// let mut letters = make_map();
+	///
+	/// for ch in "a short treatise on fungi".chars() {
+	///     let counter = letters.entry(ch).or_insert(0);
+	///     *counter += 1;
+	/// }
+	///
+	/// assert_eq!(letters[&'s'], 2);
+	/// assert_eq!(letters[&'t'], 3);
+	/// assert_eq!(letters[&'u'], 1);
+	/// assert!(!letters.contains_key(&'y'));
+	/// ```
+	fn entry(&mut self, key: Self::Key) -> Entry<Self::Occ<'_>, Self::Vac<'_>>;
+}
+
+
+pub trait EntryRefApi<Q: ToOwned<Owned = Self::Key> + ?Sized>: Keyed {
+	type Occ<'a>: OccupiedEntry<'a, K = Self::Key, V = Self::Item>
+	where
+		Self: 'a,
+		Q: 'a;
+	type Vac<'a, 'b: 'a>: VacantEntry<'a, K = Self::Key, V = Self::Item>
+	where
+		Self: 'a,
+		Q: 'a + 'b,
+		'a: 'b;
+
+	/// Gets the given key's corresponding entry in the map for in-place manipulation.
+	///
+	/// # Examples
+	///
+	/// ```
+	/// use std::collections::HashMap;
+	/// use std::ops::Index;
+	/// use cc_traits::{EntryRefApi, entry_api::*, Get};
+	///
+	/// fn make_map() -> impl EntryRefApi<str, Key=String,Item=u32> + Index<&'static str, Output=u32> + Get<&'static str> { HashMap::new() }
+	/// let mut words = make_map();
+	///
+	/// for s in "foo bar bar".split(' ') {
+	///     let counter = words.entry_ref(s).or_insert(0);
+	///     *counter += 1;
+	/// }
+	///
+	/// assert_eq!(words["bar"], 2);
+	/// assert_eq!(words["foo"], 1);
+	/// assert!(!words.contains_key("baz"));
+	/// ```
+	///
+	/// ```compile_fail
+	/// use std::collections::HashMap;
+	/// use cc_traits::{EntryRefApi, entry_api::*};
+	///
+	/// fn make_map() -> impl EntryRefApi<String, Key=String, Item=String>{ HashMap::new() }
+	///
+	/// let mut test = make_map();
+	/// let s = "hello world".to_string();
+	/// test.entry_ref(&s).or_insert(s); // the reference to s is still required so it can't be moved to insert
+	/// ```
+	/// Note: implementing this trait for hash map requires the `raw_entry` feature since it makes use of the `hash_raw_entry` nightly feature
+	fn entry_ref<'a, 'b: 'a>(&'a mut self, key: &'b Q) -> Entry<Self::Occ<'a>, Self::Vac<'a, 'b>>;
 }
 
 /// Mutable collection where new elements can be pushed on the front.
