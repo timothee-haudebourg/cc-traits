@@ -1,6 +1,6 @@
 use crate::{
 	Back, BackMut, Capacity, Clear, Collection, CollectionMut, CollectionRef, Front, FrontMut, Len,
-	PopBack, PushBack, Reserve, WithCapacity,
+	PopBack, PopFront, PushBack, PushFront, Reserve, WithCapacity,
 };
 use std::collections::VecDeque;
 
@@ -87,12 +87,28 @@ impl<T> BackMut for VecDeque<T> {
 	}
 }
 
+impl<T> PushFront for VecDeque<T> {
+	type Output = ();
+
+	#[inline(always)]
+	fn push_front(&mut self, t: T) {
+		self.push_front(t)
+	}
+}
+
 impl<T> PushBack for VecDeque<T> {
 	type Output = ();
 
 	#[inline(always)]
 	fn push_back(&mut self, t: T) {
 		self.push_back(t)
+	}
+}
+
+impl<T> PopFront for VecDeque<T> {
+	#[inline(always)]
+	fn pop_front(&mut self) -> Option<T> {
+		self.pop_front()
 	}
 }
 
