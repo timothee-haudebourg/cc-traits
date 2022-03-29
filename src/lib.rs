@@ -84,6 +84,9 @@
 //! pub trait StackMut<T> = Stack<T> + BackMut + PushBack + PopBack;
 //! ```
 //!
+//! As of version 0.8.0, those traits are also available without the `nightly`
+//! feature as regular trait definitions.
+//!
 //! # Standard library
 //!
 //! By default, all the traits defined in this crate are implemented (when relevent)
@@ -111,6 +114,11 @@ mod macros;
 mod alias;
 #[cfg(feature = "nightly")]
 pub use alias::*;
+
+#[cfg(not(feature = "nightly"))]
+mod non_alias;
+#[cfg(not(feature = "nightly"))]
+pub use non_alias::*;
 
 use std::ops::{Deref, DerefMut};
 

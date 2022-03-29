@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2022-03-29
+### Added
+- Traits replacing traits aliases when the `nightly` feature is not enabled.
+  Required since trait aliases seem stalled and won't be stable for a while.
+
 ## [0.7.3] - 2021-12-09
 ### Added
 - Explicit bound `Self: 'long` in reference upcast functions (`upcast_item_ref`, `upcast_item_mut`, `upcast_key_ref`).
