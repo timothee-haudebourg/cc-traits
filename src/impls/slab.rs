@@ -1,6 +1,6 @@
 use crate::{
 	Capacity, Clear, Collection, CollectionMut, CollectionRef, Get, GetMut, Insert, Len, Remove,
-	Reserve, WithCapacity,
+	Reserve, SimpleCollectionMut, SimpleCollectionRef, WithCapacity,
 };
 use slab::Slab;
 
@@ -9,21 +9,33 @@ impl<T> Collection for Slab<T> {
 }
 
 impl<T> CollectionRef for Slab<T> {
-	type ItemRef<'a>
-	where
-		Self: 'a,
-	= &'a T;
+	type ItemRef<'a> = &'a T where Self: 'a;
 
 	crate::covariant_item_ref!();
 }
 
 impl<T> CollectionMut for Slab<T> {
-	type ItemMut<'a>
-	where
-		Self: 'a,
-	= &'a mut T;
+	type ItemMut<'a> = &'a mut T where Self: 'a;
 
 	crate::covariant_item_mut!();
+}
+
+impl<T> SimpleCollectionRef for Slab<T> {
+	fn into_ref<'a>(r: &'a T) -> &'a T
+	where
+		Self: 'a,
+	{
+		r
+	}
+}
+
+impl<T> SimpleCollectionMut for Slab<T> {
+	fn into_mut<'a>(r: &'a mut T) -> &'a mut T
+	where
+		Self: 'a,
+	{
+		r
+	}
 }
 
 impl<T> WithCapacity for Slab<T> {

@@ -1,4 +1,7 @@
-use crate::{Clear, Collection, CollectionMut, CollectionRef, Get, Insert, Iter, Len, Remove};
+use crate::{
+	Clear, Collection, CollectionMut, CollectionRef, Get, Insert, Iter, Len, Remove,
+	SimpleCollectionMut, SimpleCollectionRef,
+};
 use std::{borrow::Borrow, collections::HashSet, hash::Hash};
 
 impl<T> Collection for HashSet<T> {
@@ -6,21 +9,33 @@ impl<T> Collection for HashSet<T> {
 }
 
 impl<T> CollectionRef for HashSet<T> {
-	type ItemRef<'a>
-	where
-		Self: 'a,
-	= &'a T;
+	type ItemRef<'a> = &'a T where Self: 'a;
 
 	crate::covariant_item_ref!();
 }
 
 impl<T> CollectionMut for HashSet<T> {
-	type ItemMut<'a>
-	where
-		Self: 'a,
-	= &'a mut T;
+	type ItemMut<'a> = &'a mut T where Self: 'a;
 
 	crate::covariant_item_mut!();
+}
+
+impl<T> SimpleCollectionRef for HashSet<T> {
+	fn into_ref<'a>(r: &'a T) -> &'a T
+	where
+		Self: 'a,
+	{
+		r
+	}
+}
+
+impl<T> SimpleCollectionMut for HashSet<T> {
+	fn into_mut<'a>(r: &'a mut T) -> &'a mut T
+	where
+		Self: 'a,
+	{
+		r
+	}
 }
 
 impl<T> Len for HashSet<T> {
@@ -73,10 +88,7 @@ impl<T: Hash + Eq> Clear for HashSet<T> {
 }
 
 impl<T> Iter for HashSet<T> {
-	type Iter<'a>
-	where
-		T: 'a,
-	= std::collections::hash_set::Iter<'a, T>;
+	type Iter<'a> = std::collections::hash_set::Iter<'a, T> where Self: 'a;
 
 	#[inline(always)]
 	fn iter(&self) -> Self::Iter<'_> {

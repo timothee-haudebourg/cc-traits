@@ -1,7 +1,7 @@
 use crate::{
 	Capacity, Clear, Collection, CollectionMut, CollectionRef, Get, GetKeyValue, GetKeyValueMut,
 	GetMut, Iter, IterMut, Keyed, KeyedRef, Len, MapInsert, MapIter, MapIterMut, PopBack, PushBack,
-	Remove, Reserve, WithCapacity,
+	Remove, Reserve, SimpleCollectionMut, SimpleCollectionRef, WithCapacity,
 };
 use ijson::{IArray, IObject, IString, IValue};
 
@@ -10,15 +10,33 @@ impl Collection for IObject {
 }
 
 impl CollectionRef for IObject {
-	type ItemRef<'a> = &'a IValue;
+	type ItemRef<'a> = &'a IValue where Self: 'a;
 
 	crate::covariant_item_ref!();
 }
 
 impl CollectionMut for IObject {
-	type ItemMut<'a> = &'a mut IValue;
+	type ItemMut<'a> = &'a mut IValue where Self: 'a;
 
 	crate::covariant_item_mut!();
+}
+
+impl SimpleCollectionRef for IObject {
+	fn into_ref<'a>(r: &'a IValue) -> &'a IValue
+	where
+		Self: 'a,
+	{
+		r
+	}
+}
+
+impl SimpleCollectionMut for IObject {
+	fn into_mut<'a>(r: &'a mut IValue) -> &'a mut IValue
+	where
+		Self: 'a,
+	{
+		r
+	}
 }
 
 impl Keyed for IObject {
@@ -26,7 +44,7 @@ impl Keyed for IObject {
 }
 
 impl KeyedRef for IObject {
-	type KeyRef<'a> = &'a IString;
+	type KeyRef<'a> = &'a IString where Self: 'a;
 
 	crate::covariant_key_ref!();
 }
@@ -53,7 +71,7 @@ impl MapIter for IObject {
 }
 
 impl MapIterMut for IObject {
-	type IterMut<'a> = ijson::object::IterMut<'a>;
+	type IterMut<'a> = ijson::object::IterMut<'a> where Self: 'a;
 
 	#[inline(always)]
 	fn iter_mut(&mut self) -> Self::IterMut<'_> {
@@ -117,19 +135,13 @@ impl Collection for IArray {
 }
 
 impl CollectionRef for IArray {
-	type ItemRef<'a>
-	where
-		Self: 'a,
-	= &'a IValue;
+	type ItemRef<'a> = &'a IValue where Self: 'a;
 
 	crate::covariant_item_ref!();
 }
 
 impl CollectionMut for IArray {
-	type ItemMut<'a>
-	where
-		Self: 'a,
-	= &'a mut IValue;
+	type ItemMut<'a> = &'a mut IValue where Self: 'a;
 
 	crate::covariant_item_mut!();
 }

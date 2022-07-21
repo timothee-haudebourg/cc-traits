@@ -1,6 +1,6 @@
 use crate::{
 	Clear, Collection, CollectionMut, CollectionRef, Get, GetKeyValue, GetMut, Keyed, KeyedRef,
-	Len, MapInsert, MapIter, MapIterMut, Remove,
+	Len, MapInsert, MapIter, MapIterMut, Remove, SimpleCollectionMut, SimpleCollectionRef,
 };
 use std::{borrow::Borrow, cmp::Ord, hash::Hash};
 
@@ -9,15 +9,33 @@ impl Collection for serde_json::Map<String, serde_json::Value> {
 }
 
 impl CollectionRef for serde_json::Map<String, serde_json::Value> {
-	type ItemRef<'a> = &'a serde_json::Value;
+	type ItemRef<'a> = &'a serde_json::Value where Self: 'a;
 
 	crate::covariant_item_ref!();
 }
 
 impl CollectionMut for serde_json::Map<String, serde_json::Value> {
-	type ItemMut<'a> = &'a mut serde_json::Value;
+	type ItemMut<'a> = &'a mut serde_json::Value where Self: 'a;
 
 	crate::covariant_item_mut!();
+}
+
+impl SimpleCollectionRef for serde_json::Map<String, serde_json::Value> {
+	fn into_ref<'a>(r: &'a serde_json::Value) -> &'a serde_json::Value
+	where
+		Self: 'a,
+	{
+		r
+	}
+}
+
+impl SimpleCollectionMut for serde_json::Map<String, serde_json::Value> {
+	fn into_mut<'a>(r: &'a mut serde_json::Value) -> &'a mut serde_json::Value
+	where
+		Self: 'a,
+	{
+		r
+	}
 }
 
 impl Keyed for serde_json::Map<String, serde_json::Value> {
@@ -25,7 +43,7 @@ impl Keyed for serde_json::Map<String, serde_json::Value> {
 }
 
 impl KeyedRef for serde_json::Map<String, serde_json::Value> {
-	type KeyRef<'a> = &'a String;
+	type KeyRef<'a> = &'a String where Self: 'a;
 
 	crate::covariant_key_ref!();
 }
@@ -43,7 +61,7 @@ impl Len for serde_json::Map<String, serde_json::Value> {
 }
 
 impl MapIter for serde_json::Map<String, serde_json::Value> {
-	type Iter<'a> = serde_json::map::Iter<'a>;
+	type Iter<'a> = serde_json::map::Iter<'a> where Self: 'a;
 
 	#[inline(always)]
 	fn iter(&self) -> Self::Iter<'_> {
@@ -52,7 +70,7 @@ impl MapIter for serde_json::Map<String, serde_json::Value> {
 }
 
 impl MapIterMut for serde_json::Map<String, serde_json::Value> {
-	type IterMut<'a> = serde_json::map::IterMut<'a>;
+	type IterMut<'a> = serde_json::map::IterMut<'a> where Self: 'a;
 
 	#[inline(always)]
 	fn iter_mut(&mut self) -> Self::IterMut<'_> {

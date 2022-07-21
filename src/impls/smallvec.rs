@@ -1,6 +1,6 @@
 use crate::{
 	Capacity, Clear, Collection, CollectionMut, CollectionRef, Get, GetMut, Iter, IterMut, Len,
-	PopBack, PushBack, Remove, Reserve, WithCapacity,
+	PopBack, PushBack, Remove, Reserve, SimpleCollectionMut, SimpleCollectionRef, WithCapacity,
 };
 use smallvec::{Array, SmallVec};
 
@@ -9,21 +9,33 @@ impl<A: Array> Collection for SmallVec<A> {
 }
 
 impl<A: Array> CollectionRef for SmallVec<A> {
-	type ItemRef<'a>
-	where
-		Self: 'a,
-	= &'a A::Item;
+	type ItemRef<'a> = &'a A::Item where Self: 'a;
 
 	crate::covariant_item_ref!();
 }
 
 impl<A: Array> CollectionMut for SmallVec<A> {
-	type ItemMut<'a>
-	where
-		Self: 'a,
-	= &'a mut A::Item;
+	type ItemMut<'a> = &'a mut A::Item where Self: 'a;
 
 	crate::covariant_item_mut!();
+}
+
+impl<A: Array> SimpleCollectionRef for SmallVec<A> {
+	fn into_ref<'a>(r: &'a A::Item) -> &'a A::Item
+	where
+		Self: 'a,
+	{
+		r
+	}
+}
+
+impl<A: Array> SimpleCollectionMut for SmallVec<A> {
+	fn into_mut<'a>(r: &'a mut A::Item) -> &'a mut A::Item
+	where
+		Self: 'a,
+	{
+		r
+	}
 }
 
 impl<A: Array> WithCapacity for SmallVec<A> {
@@ -108,10 +120,7 @@ impl<A: Array> Clear for SmallVec<A> {
 }
 
 impl<A: Array> Iter for SmallVec<A> {
-	type Iter<'a>
-	where
-		A: 'a,
-	= std::slice::Iter<'a, A::Item>;
+	type Iter<'a> = std::slice::Iter<'a, A::Item> where Self: 'a;
 
 	#[inline(always)]
 	fn iter(&self) -> Self::Iter<'_> {
@@ -120,10 +129,7 @@ impl<A: Array> Iter for SmallVec<A> {
 }
 
 impl<A: Array> IterMut for SmallVec<A> {
-	type IterMut<'a>
-	where
-		A: 'a,
-	= std::slice::IterMut<'a, A::Item>;
+	type IterMut<'a> = std::slice::IterMut<'a, A::Item> where Self: 'a;
 
 	#[inline(always)]
 	fn iter_mut(&mut self) -> Self::IterMut<'_> {

@@ -1,6 +1,7 @@
 use crate::{
 	Clear, Collection, CollectionMut, CollectionRef, Get, GetKeyValue, GetMut, Iter, Keyed,
-	KeyedRef, Len, MapInsert, MapIter, MapIterMut, Remove,
+	KeyedRef, Len, MapInsert, MapIter, MapIterMut, Remove, SimpleCollectionMut,
+	SimpleCollectionRef,
 };
 use std::{borrow::Borrow, collections::BTreeMap};
 
@@ -9,21 +10,33 @@ impl<K, V> Collection for BTreeMap<K, V> {
 }
 
 impl<K, V> CollectionRef for BTreeMap<K, V> {
-	type ItemRef<'a>
-	where
-		Self: 'a,
-	= &'a V;
+	type ItemRef<'a> = &'a V where Self: 'a;
 
 	crate::covariant_item_ref!();
 }
 
 impl<K, V> CollectionMut for BTreeMap<K, V> {
-	type ItemMut<'a>
-	where
-		Self: 'a,
-	= &'a mut V;
+	type ItemMut<'a> = &'a mut V where Self: 'a;
 
 	crate::covariant_item_mut!();
+}
+
+impl<K, V> SimpleCollectionRef for BTreeMap<K, V> {
+	fn into_ref<'a>(r: &'a V) -> &'a V
+	where
+		Self: 'a,
+	{
+		r
+	}
+}
+
+impl<K, V> SimpleCollectionMut for BTreeMap<K, V> {
+	fn into_mut<'a>(r: &'a mut V) -> &'a mut V
+	where
+		Self: 'a,
+	{
+		r
+	}
 }
 
 impl<K, V> Keyed for BTreeMap<K, V> {
@@ -31,10 +44,7 @@ impl<K, V> Keyed for BTreeMap<K, V> {
 }
 
 impl<K, V> KeyedRef for BTreeMap<K, V> {
-	type KeyRef<'a>
-	where
-		Self: 'a,
-	= &'a K;
+	type KeyRef<'a> = &'a K where Self: 'a;
 
 	crate::covariant_key_ref!();
 }
@@ -112,10 +122,7 @@ impl<K: Ord, V> Clear for BTreeMap<K, V> {
 }
 
 impl<K, V> Iter for BTreeMap<K, V> {
-	type Iter<'a>
-	where
-		Self: 'a,
-	= std::collections::btree_map::Values<'a, K, V>;
+	type Iter<'a> = std::collections::btree_map::Values<'a, K, V> where Self: 'a;
 
 	#[inline(always)]
 	fn iter(&self) -> Self::Iter<'_> {
@@ -124,10 +131,7 @@ impl<K, V> Iter for BTreeMap<K, V> {
 }
 
 impl<K, V> MapIter for BTreeMap<K, V> {
-	type Iter<'a>
-	where
-		Self: 'a,
-	= std::collections::btree_map::Iter<'a, K, V>;
+	type Iter<'a> = std::collections::btree_map::Iter<'a, K, V> where Self: 'a;
 
 	#[inline(always)]
 	fn iter(&self) -> Self::Iter<'_> {
@@ -136,10 +140,7 @@ impl<K, V> MapIter for BTreeMap<K, V> {
 }
 
 impl<K, V> MapIterMut for BTreeMap<K, V> {
-	type IterMut<'a>
-	where
-		Self: 'a,
-	= std::collections::btree_map::IterMut<'a, K, V>;
+	type IterMut<'a> = std::collections::btree_map::IterMut<'a, K, V> where Self: 'a;
 
 	#[inline(always)]
 	fn iter_mut(&mut self) -> Self::IterMut<'_> {

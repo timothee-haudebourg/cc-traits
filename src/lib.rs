@@ -149,6 +149,20 @@ pub trait CollectionRef: Collection {
 		Self: 'long;
 }
 
+/// Collection where each item reference can be converted into a standard
+/// "simple" rust reference.
+///
+/// This trait is particularly useful to avoid having to include where bounds
+/// of the form `for<'r> T::ItemRef<'r>: Into<&'r T::Item>`, which can
+/// currently lead the compiler to try to prove `T: 'static`
+/// (see https://github.com/rust-lang/rust/pull/96709#issuecomment-1182403490)
+/// for more details.
+pub trait SimpleCollectionRef: CollectionRef {
+	fn into_ref<'r>(r: Self::ItemRef<'r>) -> &'r Self::Item
+	where
+		Self: 'r;
+}
+
 /// Abstract collection that can be mutably referenced.
 pub trait CollectionMut: Collection {
 	/// Type of mutable references to items of the collection.
@@ -164,6 +178,20 @@ pub trait CollectionMut: Collection {
 	fn upcast_item_mut<'short, 'long: 'short>(r: Self::ItemMut<'long>) -> Self::ItemMut<'short>
 	where
 		Self: 'long;
+}
+
+/// Collection where each item reference can be converted into a standard
+/// "simple" rust reference.
+///
+/// This trait is particularly useful to avoid having to include where bounds
+/// of the form `for<'r> T::ItemMut<'r>: Into<&'r mut T::Item>`, which can
+/// currently lead the compiler to try to prove `T: 'static`
+/// (see https://github.com/rust-lang/rust/pull/96709#issuecomment-1182403490)
+/// for more details.
+pub trait SimpleCollectionMut: CollectionMut {
+	fn into_mut<'r>(r: Self::ItemMut<'r>) -> &'r mut Self::Item
+	where
+		Self: 'r;
 }
 
 /// Abstract keyed collection.

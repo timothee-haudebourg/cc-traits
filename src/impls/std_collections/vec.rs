@@ -1,6 +1,6 @@
 use crate::{
 	Capacity, Clear, Collection, CollectionMut, CollectionRef, Get, GetMut, Iter, IterMut, Len,
-	PopBack, PushBack, Remove, Reserve, WithCapacity,
+	PopBack, PushBack, Remove, Reserve, SimpleCollectionMut, SimpleCollectionRef, WithCapacity,
 };
 
 impl<T> Collection for Vec<T> {
@@ -8,21 +8,33 @@ impl<T> Collection for Vec<T> {
 }
 
 impl<T> CollectionRef for Vec<T> {
-	type ItemRef<'a>
-	where
-		Self: 'a,
-	= &'a T;
+	type ItemRef<'a> = &'a T where Self: 'a;
 
 	crate::covariant_item_ref!();
 }
 
 impl<T> CollectionMut for Vec<T> {
-	type ItemMut<'a>
-	where
-		Self: 'a,
-	= &'a mut T;
+	type ItemMut<'a> = &'a mut T where Self: 'a;
 
 	crate::covariant_item_mut!();
+}
+
+impl<T> SimpleCollectionRef for Vec<T> {
+	fn into_ref<'a>(r: &'a T) -> &'a T
+	where
+		Self: 'a,
+	{
+		r
+	}
+}
+
+impl<T> SimpleCollectionMut for Vec<T> {
+	fn into_mut<'a>(r: &'a mut T) -> &'a mut T
+	where
+		Self: 'a,
+	{
+		r
+	}
 }
 
 impl<T> WithCapacity for Vec<T> {
@@ -107,10 +119,7 @@ impl<T> Clear for Vec<T> {
 }
 
 impl<T> Iter for Vec<T> {
-	type Iter<'a>
-	where
-		T: 'a,
-	= std::slice::Iter<'a, T>;
+	type Iter<'a> = std::slice::Iter<'a, T> where Self: 'a;
 
 	#[inline(always)]
 	fn iter(&self) -> Self::Iter<'_> {
@@ -119,10 +128,7 @@ impl<T> Iter for Vec<T> {
 }
 
 impl<T> IterMut for Vec<T> {
-	type IterMut<'a>
-	where
-		T: 'a,
-	= std::slice::IterMut<'a, T>;
+	type IterMut<'a> = std::slice::IterMut<'a, T> where Self: 'a;
 
 	#[inline(always)]
 	fn iter_mut(&mut self) -> Self::IterMut<'_> {

@@ -1,4 +1,7 @@
-use crate::{Clear, Collection, CollectionMut, CollectionRef, Get, Insert, Iter, Len, Remove};
+use crate::{
+	Clear, Collection, CollectionMut, CollectionRef, Get, Insert, Iter, Len, Remove,
+	SimpleCollectionMut, SimpleCollectionRef,
+};
 use std::{borrow::Borrow, collections::BTreeSet};
 
 impl<T> Collection for BTreeSet<T> {
@@ -6,21 +9,33 @@ impl<T> Collection for BTreeSet<T> {
 }
 
 impl<T> CollectionRef for BTreeSet<T> {
-	type ItemRef<'a>
-	where
-		Self: 'a,
-	= &'a T;
+	type ItemRef<'a> = &'a T where Self: 'a;
 
 	crate::covariant_item_ref!();
 }
 
 impl<T> CollectionMut for BTreeSet<T> {
-	type ItemMut<'a>
-	where
-		Self: 'a,
-	= &'a mut T;
+	type ItemMut<'a> = &'a mut T where Self: 'a;
 
 	crate::covariant_item_mut!();
+}
+
+impl<T> SimpleCollectionRef for BTreeSet<T> {
+	fn into_ref<'a>(r: &'a T) -> &'a T
+	where
+		Self: 'a,
+	{
+		r
+	}
+}
+
+impl<T> SimpleCollectionMut for BTreeSet<T> {
+	fn into_mut<'a>(r: &'a mut T) -> &'a mut T
+	where
+		Self: 'a,
+	{
+		r
+	}
 }
 
 impl<T> Len for BTreeSet<T> {
@@ -74,10 +89,7 @@ impl<T: Ord> Clear for BTreeSet<T> {
 }
 
 impl<T> Iter for BTreeSet<T> {
-	type Iter<'a>
-	where
-		Self: 'a,
-	= std::collections::btree_set::Iter<'a, T>;
+	type Iter<'a> = std::collections::btree_set::Iter<'a, T> where Self: 'a;
 
 	#[inline(always)]
 	fn iter(&self) -> Self::Iter<'_> {

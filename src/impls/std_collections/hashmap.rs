@@ -1,6 +1,7 @@
 use crate::{
 	Clear, Collection, CollectionMut, CollectionRef, Get, GetKeyValue, GetMut, Iter, Keyed,
-	KeyedRef, Len, MapInsert, MapIter, MapIterMut, Remove,
+	KeyedRef, Len, MapInsert, MapIter, MapIterMut, Remove, SimpleCollectionMut,
+	SimpleCollectionRef,
 };
 use std::{borrow::Borrow, collections::HashMap, hash::Hash};
 
@@ -9,21 +10,33 @@ impl<K, V> Collection for HashMap<K, V> {
 }
 
 impl<K, V> CollectionRef for HashMap<K, V> {
-	type ItemRef<'a>
-	where
-		Self: 'a,
-	= &'a V;
+	type ItemRef<'a> = &'a V where Self: 'a;
 
 	crate::covariant_item_ref!();
 }
 
 impl<K, V> CollectionMut for HashMap<K, V> {
-	type ItemMut<'a>
-	where
-		Self: 'a,
-	= &'a mut V;
+	type ItemMut<'a> = &'a mut V where Self: 'a;
 
 	crate::covariant_item_mut!();
+}
+
+impl<K, V> SimpleCollectionRef for HashMap<K, V> {
+	fn into_ref<'a>(r: &'a V) -> &'a V
+	where
+		Self: 'a,
+	{
+		r
+	}
+}
+
+impl<K, V> SimpleCollectionMut for HashMap<K, V> {
+	fn into_mut<'a>(r: &'a mut V) -> &'a mut V
+	where
+		Self: 'a,
+	{
+		r
+	}
 }
 
 impl<K, V> Keyed for HashMap<K, V> {
@@ -31,10 +44,7 @@ impl<K, V> Keyed for HashMap<K, V> {
 }
 
 impl<K, V> KeyedRef for HashMap<K, V> {
-	type KeyRef<'a>
-	where
-		Self: 'a,
-	= &'a K;
+	type KeyRef<'a> = &'a K where Self: 'a;
 
 	crate::covariant_key_ref!();
 }
@@ -112,10 +122,7 @@ impl<K, V> Clear for HashMap<K, V> {
 }
 
 impl<K, V> Iter for HashMap<K, V> {
-	type Iter<'a>
-	where
-		Self: 'a,
-	= std::collections::hash_map::Values<'a, K, V>;
+	type Iter<'a> = std::collections::hash_map::Values<'a, K, V> where Self: 'a;
 
 	#[inline(always)]
 	fn iter(&self) -> Self::Iter<'_> {
@@ -124,10 +131,7 @@ impl<K, V> Iter for HashMap<K, V> {
 }
 
 impl<K, V> MapIter for HashMap<K, V> {
-	type Iter<'a>
-	where
-		Self: 'a,
-	= std::collections::hash_map::Iter<'a, K, V>;
+	type Iter<'a> = std::collections::hash_map::Iter<'a, K, V> where Self: 'a;
 
 	#[inline(always)]
 	fn iter(&self) -> Self::Iter<'_> {
@@ -136,10 +140,7 @@ impl<K, V> MapIter for HashMap<K, V> {
 }
 
 impl<K, V> MapIterMut for HashMap<K, V> {
-	type IterMut<'a>
-	where
-		Self: 'a,
-	= std::collections::hash_map::IterMut<'a, K, V>;
+	type IterMut<'a> = std::collections::hash_map::IterMut<'a, K, V> where Self: 'a;
 
 	#[inline(always)]
 	fn iter_mut(&mut self) -> Self::IterMut<'_> {
