@@ -104,7 +104,6 @@
 //!   - [`smallvec`](https://crates.io/crates/smallvec) providing the `SmallVec` collection.
 //!   - [`serde_json`](https://crates.io/crates/serde_json) providing the `Map<String, Value>` collection for JSON objects.
 //!   - [`ijson`](https://crates.io/crates/ijson) providing the `IObject` and `IArray` collections.
-#![feature(generic_associated_types)]
 #![cfg_attr(feature = "nightly", feature(trait_alias))]
 
 mod impls;

@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2022-11-07
+### Changed
+- GATs are stabilized! No more unstable `generic_associated_types` feature.
+- Moved some `where` clauses around in the docs (see issue <https://github.com/rust-lang/rust/issues/89122>).
+
 ## [0.8.0] - 2022-03-29
 ### Added
 - Traits replacing traits aliases when the `nightly` feature is not enabled.
