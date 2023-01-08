@@ -2,26 +2,26 @@ use crate::{
 	Capacity, Clear, Collection, CollectionMut, CollectionRef, Get, Insert, Iter, Len, PopBack,
 	Remove, Reserve, SimpleCollectionMut, SimpleCollectionRef, WithCapacity,
 };
-use indexmap::IndexSet;
-use std::{borrow::Borrow, hash::Hash};
+use core::hash::{BuildHasher, Hash};
+use indexmap::{Equivalent, IndexSet};
 
-impl<T> Collection for IndexSet<T> {
+impl<T, S> Collection for IndexSet<T, S> {
 	type Item = T;
 }
 
-impl<T> CollectionRef for IndexSet<T> {
+impl<T, S> CollectionRef for IndexSet<T, S> {
 	type ItemRef<'a> = &'a T where Self: 'a;
 
 	crate::covariant_item_ref!();
 }
 
-impl<T> CollectionMut for IndexSet<T> {
+impl<T, S> CollectionMut for IndexSet<T, S> {
 	type ItemMut<'a> = &'a mut T where Self: 'a;
 
 	crate::covariant_item_mut!();
 }
 
-impl<T> SimpleCollectionRef for IndexSet<T> {
+impl<T, S> SimpleCollectionRef for IndexSet<T, S> {
 	fn into_ref<'a>(r: &'a T) -> &'a T
 	where
 		Self: 'a,
@@ -30,7 +30,7 @@ impl<T> SimpleCollectionRef for IndexSet<T> {
 	}
 }
 
-impl<T> SimpleCollectionMut for IndexSet<T> {
+impl<T, S> SimpleCollectionMut for IndexSet<T, S> {
 	fn into_mut<'a>(r: &'a mut T) -> &'a mut T
 	where
 		Self: 'a,
@@ -39,7 +39,7 @@ impl<T> SimpleCollectionMut for IndexSet<T> {
 	}
 }
 
-impl<T> Len for IndexSet<T> {
+impl<T, S> Len for IndexSet<T, S> {
 	#[inline(always)]
 	fn len(&self) -> usize {
 		self.len()
@@ -51,44 +51,55 @@ impl<T> Len for IndexSet<T> {
 	}
 }
 
-impl<'a, Q, T: Hash + Eq> Get<&'a Q> for IndexSet<T>
+impl<'a, Q, T, S: BuildHasher> Get<&'a Q> for IndexSet<T, S>
 where
-	T: Borrow<Q>,
-	Q: Hash + Eq + ?Sized,
+	T: Eq + Hash,
+	Q: Hash + Equivalent<T> + ?Sized,
 {
-	fn get(&self, value: &'a Q) -> Option<&T> {
-		self.get(value)
+	#[inline(always)]
+	fn get(&self, key: &'a Q) -> Option<&T> {
+		self.get(key)
 	}
 }
 
-impl<T: Hash + Eq> Insert for IndexSet<T> {
+impl<T: Hash + Eq, S: BuildHasher> Insert for IndexSet<T, S> {
 	type Output = bool;
 
 	#[inline(always)]
-	fn insert(&mut self, t: T) -> bool {
-		self.insert(t)
+	fn insert(&mut self, item: T) -> Self::Output {
+		self.insert(item)
 	}
 }
 
-impl<'a, Q, T: Hash + Eq> Remove<&'a Q> for IndexSet<T>
+/// This implementation uses the `IndexSet::swap_take` function.
+impl<'a, Q, T, S> Remove<&'a Q> for IndexSet<T, S>
 where
-	T: Borrow<Q>,
-	Q: Hash + Eq + ?Sized,
+	Q: Hash + Equivalent<T> + ?Sized,
+	T: Eq + Hash,
+	S: BuildHasher,
 {
 	#[inline(always)]
-	fn remove(&mut self, t: &'a Q) -> Option<T> {
-		self.take(t)
+	fn remove(&mut self, item: &'a Q) -> Option<T> {
+		self.swap_take(item)
 	}
 }
 
-impl<T: Hash + Eq> Clear for IndexSet<T> {
+/// Remove an element based on an index. Uses `IndexSet::swap_remove_index` under the hood.
+impl<T, S> Remove<usize> for IndexSet<T, S> {
+	#[inline(always)]
+	fn remove(&mut self, idx: usize) -> Option<T> {
+		self.swap_remove_index(idx)
+	}
+}
+
+impl<T, S> Clear for IndexSet<T, S> {
 	#[inline(always)]
 	fn clear(&mut self) {
 		self.clear()
 	}
 }
 
-impl<T> Iter for IndexSet<T> {
+impl<T, S> Iter for IndexSet<T, S> {
 	type Iter<'a> = indexmap::set::Iter<'a, T> where Self: 'a;
 
 	#[inline(always)]
@@ -97,7 +108,7 @@ impl<T> Iter for IndexSet<T> {
 	}
 }
 
-impl<T> Capacity for IndexSet<T> {
+impl<T, S> Capacity for IndexSet<T, S> {
 	#[inline(always)]
 	fn capacity(&self) -> usize {
 		self.capacity()
@@ -111,23 +122,23 @@ impl<T> WithCapacity for IndexSet<T> {
 	}
 }
 
-impl<T: Eq + Hash> Reserve for IndexSet<T> {
+impl<T: Eq + Hash, S: BuildHasher> Reserve for IndexSet<T, S> {
 	#[inline(always)]
 	fn reserve(&mut self, additional: usize) {
 		IndexSet::reserve(self, additional)
 	}
 }
 
-impl<T: Eq + Hash> PopBack for IndexSet<T> {
+impl<T: Eq + Hash, S: BuildHasher> PopBack for IndexSet<T, S> {
 	#[inline(always)]
 	fn pop_back(&mut self) -> Option<T> {
 		self.pop()
 	}
 }
 
-impl<T> Get<usize> for IndexSet<T> {
+impl<T, S> Get<usize> for IndexSet<T, S> {
 	#[inline(always)]
-	fn get(&self, index: usize) -> Option<&T> {
-		self.get_index(index)
+	fn get(&self, idx: usize) -> Option<&T> {
+		self.get_index(idx)
 	}
 }
