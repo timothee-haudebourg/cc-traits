@@ -19,9 +19,9 @@ jobs:
         profile: minimal
         override: true
     - name: Build
-      run: cargo build --all-features --verbose
+      run: cargo build --features all-impls --verbose
     - name: Test
-      run: cargo test --all-features --verbose
+      run: cargo test --features all-impls --verbose
   rustfmt:
     name: Rustfmt
     runs-on: ubuntu-latest
@@ -57,4 +57,4 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --all-features -- -D warnings
+          args: --features all-impls -- -D warnings
