@@ -15,3 +15,5 @@ mod ijson;
 
 #[cfg(feature = "indexmap")]
 mod indexmap;
+#[cfg(feature = "indexmap")]
+mod indexset;
