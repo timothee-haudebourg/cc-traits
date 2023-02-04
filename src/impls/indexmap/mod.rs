@@ -1,2 +1,2 @@
-mod indexmap;
-mod indexset;
+mod map;
+mod set;
