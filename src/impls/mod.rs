@@ -15,3 +15,6 @@ mod serde_json;
 
 #[cfg(feature = "ijson")]
 mod ijson;
+
+#[cfg(feature = "indexmap")]
+mod indexmap;
