@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+### Changed
+- Changed the "nostd" feature to "std". Enables `std` collection implementations.
+  Enabled by default.
+
+### Added
+- Added support for `no_std`.
+- Added "alloc" feature. Enables `alloc` collection implementations.
+  Enabled by default.
+
 ## [1.0.0] - 2022-11-07
 ### Changed
 - GATs are stabilized! No more unstable `generic_associated_types` feature.

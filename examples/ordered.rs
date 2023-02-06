@@ -1,4 +1,6 @@
 use cc_traits::{Back, Collection, PushBack};
+#[cfg(feature = "std")]
+use std::collections::VecDeque;
 
 /// Ordered stack.
 pub struct Ordered<S> {
@@ -40,16 +42,21 @@ impl<S> Ordered<S> {
 }
 
 fn main() {
-	let mut vec: Ordered<Vec<i32>> = Ordered::new(); // a `Vec` is a stack so it works.
+	#[cfg(feature = "std")]
+	fn ordered_stack_usage<S>()
+	where
+		S: Default + Collection<Item = i32> + Back + PushBack,
+		for<'a> S::ItemRef<'a>: PartialOrd<&'a i32>,
+	{
+		let mut ordered: Ordered<S> = Ordered::new();
+		assert!(ordered.try_push(1).is_ok());
+		assert!(ordered.try_push(2).is_ok());
+		assert!(ordered.try_push(0).is_err());
+	}
 
-	assert!(vec.try_push(1).is_ok());
-	assert!(vec.try_push(2).is_ok());
-	assert!(vec.try_push(0).is_err());
+	#[cfg(feature = "std")]
+	ordered_stack_usage::<Vec<i32>>(); // a `Vec` is a stack so it works.
 
-	use std::collections::VecDeque;
-	let mut deque: Ordered<VecDeque<i32>> = Ordered::new(); // a `VecDeque` is also a stack.
-
-	assert!(deque.try_push(1).is_ok());
-	assert!(deque.try_push(2).is_ok());
-	assert!(deque.try_push(0).is_err());
+	#[cfg(feature = "std")]
+	ordered_stack_usage::<VecDeque<i32>>(); // a `VecDeque` is also a stack.
 }

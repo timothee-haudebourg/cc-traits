@@ -2,6 +2,7 @@ use crate::{
 	Capacity, Clear, Collection, CollectionMut, CollectionRef, Get, GetMut, Iter, IterMut, Len,
 	PopBack, PushBack, Remove, Reserve, SimpleCollectionMut, SimpleCollectionRef, WithCapacity,
 };
+use alloc::vec::Vec;
 
 impl<T> Collection for Vec<T> {
 	type Item = T;
@@ -119,7 +120,7 @@ impl<T> Clear for Vec<T> {
 }
 
 impl<T> Iter for Vec<T> {
-	type Iter<'a> = std::slice::Iter<'a, T> where Self: 'a;
+	type Iter<'a> = core::slice::Iter<'a, T> where Self: 'a;
 
 	#[inline(always)]
 	fn iter(&self) -> Self::Iter<'_> {
@@ -128,7 +129,7 @@ impl<T> Iter for Vec<T> {
 }
 
 impl<T> IterMut for Vec<T> {
-	type IterMut<'a> = std::slice::IterMut<'a, T> where Self: 'a;
+	type IterMut<'a> = core::slice::IterMut<'a, T> where Self: 'a;
 
 	#[inline(always)]
 	fn iter_mut(&mut self) -> Self::IterMut<'_> {

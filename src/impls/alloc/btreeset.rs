@@ -2,7 +2,8 @@ use crate::{
 	Clear, Collection, CollectionMut, CollectionRef, Get, Insert, Iter, Len, Remove,
 	SimpleCollectionMut, SimpleCollectionRef,
 };
-use std::{borrow::Borrow, collections::BTreeSet};
+use alloc::collections::BTreeSet;
+use core::borrow::Borrow;
 
 impl<T> Collection for BTreeSet<T> {
 	type Item = T;
@@ -89,7 +90,7 @@ impl<T: Ord> Clear for BTreeSet<T> {
 }
 
 impl<T> Iter for BTreeSet<T> {
-	type Iter<'a> = std::collections::btree_set::Iter<'a, T> where Self: 'a;
+	type Iter<'a> = alloc::collections::btree_set::Iter<'a, T> where Self: 'a;
 
 	#[inline(always)]
 	fn iter(&self) -> Self::Iter<'_> {

@@ -59,18 +59,25 @@
 //!     }
 //! }
 //!
-//! let mut vec: Ordered<Vec<i32>> = Ordered::new(); // a `Vec` is a stack so it works.
+//! #[cfg(feature = "std")]
+//! fn ordered_stack_usage<S>()
+//! where
+//!     S: Default + Collection<Item = i32> + Back + PushBack,
+//!     for<'a> S::ItemRef<'a>: PartialOrd<&'a i32>,
+//! {
+//!     let mut ordered: Ordered<S> = Ordered::new();
+//!     assert!(ordered.try_push(1).is_ok());
+//!     assert!(ordered.try_push(2).is_ok());
+//!     assert!(ordered.try_push(0).is_err());
+//! }
 //!
-//! assert!(vec.try_push(1).is_ok());
-//! assert!(vec.try_push(2).is_ok());
-//! assert!(vec.try_push(0).is_err());
+//! #[cfg(feature = "std")]
+//! ordered_stack_usage::<Vec<i32>>(); // a `Vec` is a stack so it works.
 //!
+//! #[cfg(feature = "std")]
 //! use std::collections::VecDeque;
-//! let mut deque: Ordered<VecDeque<i32>> = Ordered::new(); // a `VecDeque` is also a stack.
-//!
-//! assert!(deque.try_push(1).is_ok());
-//! assert!(deque.try_push(2).is_ok());
-//! assert!(deque.try_push(0).is_err());
+//! #[cfg(feature = "std")]
+//! ordered_stack_usage::<VecDeque<i32>>(); // a `VecDeque` is also a stack.
 //! ```
 //!
 //! # Trait aliases
@@ -89,7 +96,7 @@
 //!
 //! # Standard library
 //!
-//! By default, all the traits defined in this crate are implemented (when relevent)
+//! By default, all the traits defined in this crate are implemented (when relevant)
 //! for the standard library collections.
 //! You can disable it by using the `nostd` feature.
 //!
@@ -104,7 +111,12 @@
 //!   - [`smallvec`](https://crates.io/crates/smallvec) providing the `SmallVec` collection.
 //!   - [`serde_json`](https://crates.io/crates/serde_json) providing the `Map<String, Value>` collection for JSON objects.
 //!   - [`ijson`](https://crates.io/crates/ijson) providing the `IObject` and `IArray` collections.
+#![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(feature = "nightly", feature(trait_alias))]
+
+#[cfg(feature = "alloc")]
+extern crate alloc;
+extern crate core;
 
 mod impls;
 mod macros;
@@ -119,7 +131,7 @@ mod non_alias;
 #[cfg(not(feature = "nightly"))]
 pub use non_alias::*;
 
-use std::ops::{Deref, DerefMut};
+use core::ops::{Deref, DerefMut};
 
 /// Abstract collection.
 pub trait Collection {
