@@ -1,5 +1,5 @@
 use crate::*;
-use std::ops::{Index, IndexMut};
+use core::ops::{Index, IndexMut};
 
 /// Collection with mutable capacity.
 pub trait CapacityMut: Capacity + Reserve {}

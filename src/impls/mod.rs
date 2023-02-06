@@ -1,5 +1,8 @@
-#[cfg(not(feature = "nostd"))]
-mod std_collections;
+#[cfg(feature = "alloc")]
+mod alloc;
+
+#[cfg(feature = "std")]
+mod std;
 
 #[cfg(feature = "slab")]
 mod slab;

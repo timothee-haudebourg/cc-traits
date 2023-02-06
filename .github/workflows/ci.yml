@@ -22,6 +22,8 @@ jobs:
       run: cargo build --features all-impls --verbose
     - name: Test
       run: cargo test --features all-impls --verbose
+    - name: Test (no default features)
+      run: cargo test --no-default-features --verbose
   rustfmt:
     name: Rustfmt
     runs-on: ubuntu-latest

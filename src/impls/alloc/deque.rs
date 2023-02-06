@@ -2,7 +2,7 @@ use crate::{
 	Back, BackMut, Capacity, Clear, Collection, CollectionMut, CollectionRef, Front, FrontMut, Len,
 	PopBack, PushBack, Reserve, SimpleCollectionMut, SimpleCollectionRef, WithCapacity,
 };
-use std::collections::VecDeque;
+use alloc::collections::VecDeque;
 
 impl<T> Collection for VecDeque<T> {
 	type Item = T;
