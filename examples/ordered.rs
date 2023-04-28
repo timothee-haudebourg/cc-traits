@@ -3,6 +3,7 @@ use cc_traits::{Back, Collection, PushBack};
 use std::collections::VecDeque;
 
 /// Ordered stack.
+#[derive(Default)]
 pub struct Ordered<S> {
 	inner: S,
 }
@@ -12,9 +13,7 @@ impl<S> Ordered<S> {
 	where
 		S: Default,
 	{
-		Ordered {
-			inner: S::default(),
-		}
+		Default::default()
 	}
 }
 
