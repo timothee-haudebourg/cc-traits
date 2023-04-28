@@ -1,7 +1,7 @@
 use crate::{
 	Clear, Collection, CollectionMut, CollectionRef, Get, GetKeyValue, GetMut, Iter, Keyed,
 	KeyedRef, Len, MapInsert, MapIter, MapIterMut, Remove, SimpleCollectionMut,
-	SimpleCollectionRef,
+	SimpleCollectionRef, SimpleKeyedRef,
 };
 use alloc::collections::BTreeMap;
 use core::borrow::Borrow;
@@ -48,6 +48,15 @@ impl<K, V> KeyedRef for BTreeMap<K, V> {
 	type KeyRef<'a> = &'a K where Self: 'a;
 
 	crate::covariant_key_ref!();
+}
+
+impl<K, V> SimpleKeyedRef for BTreeMap<K, V> {
+	fn into_ref<'r>(r: Self::KeyRef<'r>) -> &'r Self::Key
+	where
+		Self: 'r,
+	{
+		r
+	}
 }
 
 impl<K, V> Len for BTreeMap<K, V> {

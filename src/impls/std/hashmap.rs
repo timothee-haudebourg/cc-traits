@@ -1,7 +1,7 @@
 use crate::{
 	Clear, Collection, CollectionMut, CollectionRef, Get, GetKeyValue, GetMut, Iter, Keyed,
 	KeyedRef, Len, MapInsert, MapIter, MapIterMut, Remove, SimpleCollectionMut,
-	SimpleCollectionRef,
+	SimpleCollectionRef, SimpleKeyedRef,
 };
 use std::{borrow::Borrow, collections::HashMap, hash::Hash};
 
@@ -47,6 +47,15 @@ impl<K, V> KeyedRef for HashMap<K, V> {
 	type KeyRef<'a> = &'a K where Self: 'a;
 
 	crate::covariant_key_ref!();
+}
+
+impl<K, V> SimpleKeyedRef for HashMap<K, V> {
+	fn into_ref<'r>(r: Self::KeyRef<'r>) -> &'r Self::Key
+	where
+		Self: 'r,
+	{
+		r
+	}
 }
 
 impl<K, V> Len for HashMap<K, V> {
