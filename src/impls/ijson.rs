@@ -22,21 +22,11 @@ impl CollectionMut for IObject {
 }
 
 impl SimpleCollectionRef for IObject {
-	fn into_ref<'a>(r: &'a IValue) -> &'a IValue
-	where
-		Self: 'a,
-	{
-		r
-	}
+	crate::simple_collection_ref!();
 }
 
 impl SimpleCollectionMut for IObject {
-	fn into_mut<'a>(r: &'a mut IValue) -> &'a mut IValue
-	where
-		Self: 'a,
-	{
-		r
-	}
+	crate::simple_collection_mut!();
 }
 
 impl Keyed for IObject {
@@ -50,12 +40,7 @@ impl KeyedRef for IObject {
 }
 
 impl SimpleKeyedRef for IObject {
-	fn into_ref<'r>(r: Self::KeyRef<'r>) -> &'r Self::Key
-	where
-		Self: 'r,
-	{
-		r
-	}
+	crate::simple_keyed_ref!();
 }
 
 impl Len for IObject {

@@ -22,21 +22,11 @@ impl<K, V> CollectionMut for HashMap<K, V> {
 }
 
 impl<K, V> SimpleCollectionRef for HashMap<K, V> {
-	fn into_ref<'a>(r: &'a V) -> &'a V
-	where
-		Self: 'a,
-	{
-		r
-	}
+	crate::simple_collection_ref!();
 }
 
 impl<K, V> SimpleCollectionMut for HashMap<K, V> {
-	fn into_mut<'a>(r: &'a mut V) -> &'a mut V
-	where
-		Self: 'a,
-	{
-		r
-	}
+	crate::simple_collection_mut!();
 }
 
 impl<K, V> Keyed for HashMap<K, V> {
@@ -50,12 +40,7 @@ impl<K, V> KeyedRef for HashMap<K, V> {
 }
 
 impl<K, V> SimpleKeyedRef for HashMap<K, V> {
-	fn into_ref<'r>(r: Self::KeyRef<'r>) -> &'r Self::Key
-	where
-		Self: 'r,
-	{
-		r
-	}
+	crate::simple_keyed_ref!();
 }
 
 impl<K, V> Len for HashMap<K, V> {

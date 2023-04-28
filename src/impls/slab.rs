@@ -21,21 +21,11 @@ impl<T> CollectionMut for Slab<T> {
 }
 
 impl<T> SimpleCollectionRef for Slab<T> {
-	fn into_ref<'a>(r: &'a T) -> &'a T
-	where
-		Self: 'a,
-	{
-		r
-	}
+	crate::simple_collection_ref!();
 }
 
 impl<T> SimpleCollectionMut for Slab<T> {
-	fn into_mut<'a>(r: &'a mut T) -> &'a mut T
-	where
-		Self: 'a,
-	{
-		r
-	}
+	crate::simple_collection_mut!();
 }
 
 impl<T> WithCapacity for Slab<T> {

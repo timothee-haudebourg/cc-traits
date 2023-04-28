@@ -21,21 +21,11 @@ impl<T> CollectionMut for HashSet<T> {
 }
 
 impl<T> SimpleCollectionRef for HashSet<T> {
-	fn into_ref<'a>(r: &'a T) -> &'a T
-	where
-		Self: 'a,
-	{
-		r
-	}
+	crate::simple_collection_ref!();
 }
 
 impl<T> SimpleCollectionMut for HashSet<T> {
-	fn into_mut<'a>(r: &'a mut T) -> &'a mut T
-	where
-		Self: 'a,
-	{
-		r
-	}
+	crate::simple_collection_mut!();
 }
 
 impl<T> Len for HashSet<T> {

@@ -22,12 +22,7 @@ impl CollectionMut for serde_json::Map<String, serde_json::Value> {
 }
 
 impl SimpleCollectionRef for serde_json::Map<String, serde_json::Value> {
-	fn into_ref<'a>(r: &'a serde_json::Value) -> &'a serde_json::Value
-	where
-		Self: 'a,
-	{
-		r
-	}
+	crate::simple_collection_ref!();
 }
 
 impl SimpleCollectionMut for serde_json::Map<String, serde_json::Value> {
@@ -50,12 +45,7 @@ impl KeyedRef for serde_json::Map<String, serde_json::Value> {
 }
 
 impl SimpleKeyedRef for serde_json::Map<String, serde_json::Value> {
-	fn into_ref<'r>(r: Self::KeyRef<'r>) -> &'r Self::Key
-	where
-		Self: 'r,
-	{
-		r
-	}
+	crate::simple_keyed_ref!();
 }
 
 impl Len for serde_json::Map<String, serde_json::Value> {

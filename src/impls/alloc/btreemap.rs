@@ -23,21 +23,11 @@ impl<K, V> CollectionMut for BTreeMap<K, V> {
 }
 
 impl<K, V> SimpleCollectionRef for BTreeMap<K, V> {
-	fn into_ref<'a>(r: &'a V) -> &'a V
-	where
-		Self: 'a,
-	{
-		r
-	}
+	crate::simple_collection_ref!();
 }
 
 impl<K, V> SimpleCollectionMut for BTreeMap<K, V> {
-	fn into_mut<'a>(r: &'a mut V) -> &'a mut V
-	where
-		Self: 'a,
-	{
-		r
-	}
+	crate::simple_collection_mut!();
 }
 
 impl<K, V> Keyed for BTreeMap<K, V> {
@@ -51,12 +41,7 @@ impl<K, V> KeyedRef for BTreeMap<K, V> {
 }
 
 impl<K, V> SimpleKeyedRef for BTreeMap<K, V> {
-	fn into_ref<'r>(r: Self::KeyRef<'r>) -> &'r Self::Key
-	where
-		Self: 'r,
-	{
-		r
-	}
+	crate::simple_keyed_ref!();
 }
 
 impl<K, V> Len for BTreeMap<K, V> {
