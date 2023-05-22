@@ -1,7 +1,7 @@
 use crate::{
 	Capacity, Clear, Collection, CollectionMut, CollectionRef, Get, GetKeyValue, GetKeyValueMut,
 	GetMut, Iter, IterMut, Keyed, KeyedRef, Len, MapInsert, MapIter, MapIterMut, PopBack, PushBack,
-	Remove, Reserve, SimpleCollectionMut, SimpleCollectionRef, WithCapacity,
+	Remove, Reserve, SimpleCollectionMut, SimpleCollectionRef, SimpleKeyedRef, WithCapacity,
 };
 use ijson::{IArray, IObject, IString, IValue};
 
@@ -22,21 +22,11 @@ impl CollectionMut for IObject {
 }
 
 impl SimpleCollectionRef for IObject {
-	fn into_ref<'a>(r: &'a IValue) -> &'a IValue
-	where
-		Self: 'a,
-	{
-		r
-	}
+	crate::simple_collection_ref!();
 }
 
 impl SimpleCollectionMut for IObject {
-	fn into_mut<'a>(r: &'a mut IValue) -> &'a mut IValue
-	where
-		Self: 'a,
-	{
-		r
-	}
+	crate::simple_collection_mut!();
 }
 
 impl Keyed for IObject {
@@ -47,6 +37,10 @@ impl KeyedRef for IObject {
 	type KeyRef<'a> = &'a IString where Self: 'a;
 
 	crate::covariant_key_ref!();
+}
+
+impl SimpleKeyedRef for IObject {
+	crate::simple_keyed_ref!();
 }
 
 impl Len for IObject {

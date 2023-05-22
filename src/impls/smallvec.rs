@@ -21,21 +21,11 @@ impl<A: Array> CollectionMut for SmallVec<A> {
 }
 
 impl<A: Array> SimpleCollectionRef for SmallVec<A> {
-	fn into_ref<'a>(r: &'a A::Item) -> &'a A::Item
-	where
-		Self: 'a,
-	{
-		r
-	}
+	crate::simple_collection_ref!();
 }
 
 impl<A: Array> SimpleCollectionMut for SmallVec<A> {
-	fn into_mut<'a>(r: &'a mut A::Item) -> &'a mut A::Item
-	where
-		Self: 'a,
-	{
-		r
-	}
+	crate::simple_collection_mut!();
 }
 
 impl<A: Array> WithCapacity for SmallVec<A> {

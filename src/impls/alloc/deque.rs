@@ -21,21 +21,11 @@ impl<T> CollectionMut for VecDeque<T> {
 }
 
 impl<T> SimpleCollectionRef for VecDeque<T> {
-	fn into_ref<'a>(r: &'a T) -> &'a T
-	where
-		Self: 'a,
-	{
-		r
-	}
+	crate::simple_collection_ref!();
 }
 
 impl<T> SimpleCollectionMut for VecDeque<T> {
-	fn into_mut<'a>(r: &'a mut T) -> &'a mut T
-	where
-		Self: 'a,
-	{
-		r
-	}
+	crate::simple_collection_mut!();
 }
 
 impl<T> WithCapacity for VecDeque<T> {

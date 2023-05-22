@@ -1,6 +1,7 @@
 use crate::{
 	Clear, Collection, CollectionMut, CollectionRef, Get, GetKeyValue, GetMut, Keyed, KeyedRef,
 	Len, MapInsert, MapIter, MapIterMut, Remove, SimpleCollectionMut, SimpleCollectionRef,
+	SimpleKeyedRef,
 };
 use std::{borrow::Borrow, cmp::Ord, hash::Hash};
 
@@ -21,12 +22,7 @@ impl CollectionMut for serde_json::Map<String, serde_json::Value> {
 }
 
 impl SimpleCollectionRef for serde_json::Map<String, serde_json::Value> {
-	fn into_ref<'a>(r: &'a serde_json::Value) -> &'a serde_json::Value
-	where
-		Self: 'a,
-	{
-		r
-	}
+	crate::simple_collection_ref!();
 }
 
 impl SimpleCollectionMut for serde_json::Map<String, serde_json::Value> {
@@ -46,6 +42,10 @@ impl KeyedRef for serde_json::Map<String, serde_json::Value> {
 	type KeyRef<'a> = &'a String where Self: 'a;
 
 	crate::covariant_key_ref!();
+}
+
+impl SimpleKeyedRef for serde_json::Map<String, serde_json::Value> {
+	crate::simple_keyed_ref!();
 }
 
 impl Len for serde_json::Map<String, serde_json::Value> {

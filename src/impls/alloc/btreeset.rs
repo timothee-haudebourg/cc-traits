@@ -22,21 +22,11 @@ impl<T> CollectionMut for BTreeSet<T> {
 }
 
 impl<T> SimpleCollectionRef for BTreeSet<T> {
-	fn into_ref<'a>(r: &'a T) -> &'a T
-	where
-		Self: 'a,
-	{
-		r
-	}
+	crate::simple_collection_ref!();
 }
 
 impl<T> SimpleCollectionMut for BTreeSet<T> {
-	fn into_mut<'a>(r: &'a mut T) -> &'a mut T
-	where
-		Self: 'a,
-	{
-		r
-	}
+	crate::simple_collection_mut!();
 }
 
 impl<T> Len for BTreeSet<T> {
