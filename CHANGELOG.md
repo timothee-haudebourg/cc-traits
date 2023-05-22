@@ -5,14 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
-### Changed
-- Changed the "nostd" feature to "std". Enables `std` collection implementations.
-  Enabled by default.
+## [Unreleased]
+
+## [2.0.0] - 2023-05-22
+### Breaking changes
+- Changed the "nostd" feature to "std". Enables `std` collection implementations. Enabled by default.
 
 ### Added
-- Added support for `no_std`.
-- Added "alloc" feature. Enables `alloc` collection implementations.
+- Add `SimpleKeyedRef` trait.
+- Add helper macros `simple_collection_*` and `simple_keyed_*`.
+- Add support for `no_std`.
+- Add "alloc" feature. Enables `alloc` collection implementations.
   Enabled by default.
 
 ## [1.0.0] - 2022-11-07
