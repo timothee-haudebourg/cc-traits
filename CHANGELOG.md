@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add support for `no_std`.
 - Add "alloc" feature. Enables `alloc` collection implementations.
   Enabled by default.
+- `WithCapacity`, `Capacity` and `Reserve` impls for `HashMap` and `HashSet`.
 
 ## [1.0.0] - 2022-11-07
 ### Changed
