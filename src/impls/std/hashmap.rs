@@ -1,7 +1,7 @@
 use crate::{
-	Clear, Collection, CollectionMut, CollectionRef, Get, GetKeyValue, GetMut, Iter, Keyed,
-	KeyedRef, Len, MapInsert, MapIter, MapIterMut, Remove, SimpleCollectionMut,
-	SimpleCollectionRef, SimpleKeyedRef,
+	Capacity, Clear, Collection, CollectionMut, CollectionRef, Get, GetKeyValue, GetMut, Iter,
+	Keyed, KeyedRef, Len, MapInsert, MapIter, MapIterMut, Remove, Reserve, SimpleCollectionMut,
+	SimpleCollectionRef, SimpleKeyedRef, WithCapacity,
 };
 use std::{borrow::Borrow, collections::HashMap, hash::Hash};
 
@@ -43,6 +43,13 @@ impl<K, V> SimpleKeyedRef for HashMap<K, V> {
 	crate::simple_keyed_ref!();
 }
 
+impl<K, V> WithCapacity for HashMap<K, V> {
+	#[inline(always)]
+	fn with_capacity(capacity: usize) -> Self {
+		HashMap::with_capacity(capacity)
+	}
+}
+
 impl<K, V> Len for HashMap<K, V> {
 	#[inline(always)]
 	fn len(&self) -> usize {
@@ -63,6 +70,20 @@ where
 	#[inline(always)]
 	fn get(&self, key: &'a Q) -> Option<&V> {
 		self.get(key)
+	}
+}
+
+impl<K, V> Capacity for HashMap<K, V> {
+	#[inline(always)]
+	fn capacity(&self) -> usize {
+		self.capacity()
+	}
+}
+
+impl<K: Hash + Eq, V> Reserve for HashMap<K, V> {
+	#[inline(always)]
+	fn reserve(&mut self, additional: usize) {
+		self.reserve(additional)
 	}
 }
 

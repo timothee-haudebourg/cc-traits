@@ -1,6 +1,6 @@
 use crate::{
-	Clear, Collection, CollectionMut, CollectionRef, Get, Insert, Iter, Len, Remove,
-	SimpleCollectionMut, SimpleCollectionRef,
+	Capacity, Clear, Collection, CollectionMut, CollectionRef, Get, Insert, Iter, Len, Remove,
+	Reserve, SimpleCollectionMut, SimpleCollectionRef, WithCapacity,
 };
 use std::{borrow::Borrow, collections::HashSet, hash::Hash};
 
@@ -28,6 +28,13 @@ impl<T> SimpleCollectionMut for HashSet<T> {
 	crate::simple_collection_mut!();
 }
 
+impl<T> WithCapacity for HashSet<T> {
+	#[inline(always)]
+	fn with_capacity(capacity: usize) -> Self {
+		HashSet::with_capacity(capacity)
+	}
+}
+
 impl<T> Len for HashSet<T> {
 	#[inline(always)]
 	fn len(&self) -> usize {
@@ -47,6 +54,20 @@ where
 {
 	fn get(&self, value: &'a Q) -> Option<&T> {
 		self.get(value)
+	}
+}
+
+impl<T> Capacity for HashSet<T> {
+	#[inline(always)]
+	fn capacity(&self) -> usize {
+		self.capacity()
+	}
+}
+
+impl<T: Hash + Eq> Reserve for HashSet<T> {
+	#[inline(always)]
+	fn reserve(&mut self, additional: usize) {
+		self.reserve(additional)
 	}
 }
 
